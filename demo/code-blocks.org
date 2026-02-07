@@ -1,0 +1,749 @@
+#+TITLE: Org-mode Code Blocks and Examples
+#+AUTHOR: Demo Collection
+#+DATE: 2024-01-15
+
+This file demonstrates all code-related features in Org-mode: source blocks
+with various languages, example blocks, inline code, inline source blocks,
+and fixed-width regions.
+
+* Source Code Blocks
+
+** Python Examples
+
+Simple Python function:
+
+#+BEGIN_SRC python
+def fibonacci(n):
+    """Generate Fibonacci sequence up to n terms."""
+    a, b = 0, 1
+    sequence = []
+    for _ in range(n):
+        sequence.append(a)
+        a, b = b, a + b
+    return sequence
+
+# Generate first 10 Fibonacci numbers
+result = fibonacci(10)
+print(f"Fibonacci sequence: {result}")
+#+END_SRC
+
+Python class example:
+
+#+BEGIN_SRC python
+class BankAccount:
+    """Simple bank account implementation."""
+
+    def __init__(self, owner, balance=0):
+        self.owner = owner
+        self.balance = balance
+
+    def deposit(self, amount):
+        """Deposit money into the account."""
+        if amount > 0:
+            self.balance += amount
+            return f"Deposited ${amount}. New balance: ${self.balance}"
+        return "Invalid amount"
+
+    def withdraw(self, amount):
+        """Withdraw money from the account."""
+        if amount > self.balance:
+            return "Insufficient funds"
+        self.balance -= amount
+        return f"Withdrew ${amount}. New balance: ${self.balance}"
+
+# Usage
+account = BankAccount("Alice", 1000)
+print(account.deposit(500))
+print(account.withdraw(200))
+#+END_SRC
+
+** JavaScript Examples
+
+Modern JavaScript with async/await:
+
+#+BEGIN_SRC javascript
+// Fetch user data from API
+async function fetchUserData(userId) {
+    try {
+        const response = await fetch(`https://api.example.com/users/${userId}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        throw error;
+    }
+}
+
+// Usage with error handling
+fetchUserData(123)
+    .then(user => console.log('User:', user))
+    .catch(error => console.error('Failed to load user'));
+#+END_SRC
+
+React component example:
+
+#+BEGIN_SRC javascript
+import React, { useState, useEffect } from 'react';
+
+function UserProfile({ userId }) {
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        async function loadUser() {
+            try {
+                const response = await fetch(`/api/users/${userId}`);
+                const data = await response.json();
+                setUser(data);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        }
+        loadUser();
+    }, [userId]);
+
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error}</div>;
+    if (!user) return <div>No user found</div>;
+
+    return (
+        <div className="user-profile">
+            <h2>{user.name}</h2>
+            <p>{user.email}</p>
+        </div>
+    );
+}
+
+export default UserProfile;
+#+END_SRC
+
+** TypeScript Example
+
+#+BEGIN_SRC typescript
+interface User {
+    id: number;
+    name: string;
+    email: string;
+    role: 'admin' | 'user' | 'guest';
+}
+
+class UserManager {
+    private users: Map<number, User>;
+
+    constructor() {
+        this.users = new Map();
+    }
+
+    addUser(user: User): void {
+        this.users.set(user.id, user);
+    }
+
+    getUser(id: number): User | undefined {
+        return this.users.get(id);
+    }
+
+    getUsersByRole(role: User['role']): User[] {
+        return Array.from(this.users.values())
+            .filter(user => user.role === role);
+    }
+
+    updateUser(id: number, updates: Partial<User>): boolean {
+        const user = this.users.get(id);
+        if (!user) return false;
+
+        this.users.set(id, { ...user, ...updates });
+        return true;
+    }
+}
+
+// Usage
+const manager = new UserManager();
+manager.addUser({ id: 1, name: 'Alice', email: 'alice@example.com', role: 'admin' });
+#+END_SRC
+
+** Emacs Lisp Example
+
+#+BEGIN_SRC emacs-lisp
+;; Custom Emacs configuration snippet
+(defun my/org-setup ()
+  "Configure Org-mode with custom settings."
+  (setq org-startup-indented t
+        org-hide-leading-stars t
+        org-odd-levels-only nil
+        org-startup-folded 'content
+        org-log-done 'time
+        org-todo-keywords
+        '((sequence "TODO(t)" "IN-PROGRESS(i)" "WAITING(w)" "|" "DONE(d)" "CANCELLED(c)"))))
+
+;; Helper function to insert current timestamp
+(defun my/insert-timestamp ()
+  "Insert current timestamp in Org format."
+  (interactive)
+  (insert (format-time-string "[%Y-%m-%d %a %H:%M]")))
+
+;; Custom agenda command
+(setq org-agenda-custom-commands
+      '(("w" "Work tasks" tags-todo "work"
+         ((org-agenda-overriding-header "Work Tasks")))
+        ("p" "Personal tasks" tags-todo "personal"
+         ((org-agenda-overriding-header "Personal Tasks")))))
+#+END_SRC
+
+** Shell/Bash Scripts
+
+#+BEGIN_SRC bash
+#!/bin/bash
+# Backup script for important directories
+
+BACKUP_DIR="/backup/$(date +%Y-%m-%d)"
+SOURCE_DIRS=("/home/user/documents" "/home/user/projects")
+LOG_FILE="/var/log/backup.log"
+
+# Create backup directory
+mkdir -p "$BACKUP_DIR"
+
+# Log function
+log() {
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
+}
+
+# Perform backup
+for dir in "${SOURCE_DIRS[@]}"; do
+    if [ -d "$dir" ]; then
+        log "Backing up $dir..."
+        tar -czf "$BACKUP_DIR/$(basename $dir).tar.gz" "$dir"
+        if [ $? -eq 0 ]; then
+            log "Successfully backed up $dir"
+        else
+            log "ERROR: Failed to backup $dir"
+        fi
+    else
+        log "WARNING: Directory $dir does not exist"
+    fi
+done
+
+log "Backup completed"
+#+END_SRC
+
+** C Language Example
+
+#+BEGIN_SRC c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Linked list node structure
+typedef struct Node {
+    int data;
+    struct Node* next;
+} Node;
+
+// Create a new node
+Node* createNode(int data) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    if (newNode == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(1);
+    }
+    newNode->data = data;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Insert at the beginning
+void insertAtHead(Node** head, int data) {
+    Node* newNode = createNode(data);
+    newNode->next = *head;
+    *head = newNode;
+}
+
+// Print the list
+void printList(Node* head) {
+    Node* current = head;
+    printf("List: ");
+    while (current != NULL) {
+        printf("%d -> ", current->data);
+        current = current->next;
+    }
+    printf("NULL\n");
+}
+
+int main() {
+    Node* head = NULL;
+    insertAtHead(&head, 3);
+    insertAtHead(&head, 2);
+    insertAtHead(&head, 1);
+    printList(head);
+    return 0;
+}
+#+END_SRC
+
+** Rust Example
+   :PROPERTIES:
+   :CUSTOM_ID: example-code
+   :END:
+
+#+BEGIN_SRC rust
+// Rust implementation of a simple vector operations
+use std::ops::Add;
+
+#[derive(Debug, Clone, Copy)]
+struct Vector2D {
+    x: f64,
+    y: f64,
+}
+
+impl Vector2D {
+    fn new(x: f64, y: f64) -> Self {
+        Vector2D { x, y }
+    }
+
+    fn magnitude(&self) -> f64 {
+        (self.x * self.x + self.y * self.y).sqrt()
+    }
+
+    fn normalize(&self) -> Self {
+        let mag = self.magnitude();
+        Vector2D {
+            x: self.x / mag,
+            y: self.y / mag,
+        }
+    }
+}
+
+impl Add for Vector2D {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        Vector2D {
+            x: self.x + other.x,
+            y: self.y + other.y,
+        }
+    }
+}
+
+fn main() {
+    let v1 = Vector2D::new(3.0, 4.0);
+    let v2 = Vector2D::new(1.0, 2.0);
+    let v3 = v1 + v2;
+
+    println!("v1: {:?}", v1);
+    println!("v2: {:?}", v2);
+    println!("v3: {:?}", v3);
+    println!("Magnitude of v1: {}", v1.magnitude());
+}
+#+END_SRC
+
+** Go Example
+
+#+BEGIN_SRC go
+package main
+
+import (
+    "fmt"
+    "sync"
+    "time"
+)
+
+// Worker pool implementation
+type Worker struct {
+    id         int
+    jobChannel chan Job
+    wg         *sync.WaitGroup
+}
+
+type Job struct {
+    id   int
+    data string
+}
+
+func (w *Worker) start() {
+    go func() {
+        for job := range w.jobChannel {
+            fmt.Printf("Worker %d processing job %d: %s\n",
+                       w.id, job.id, job.data)
+            time.Sleep(time.Second) // Simulate work
+            w.wg.Done()
+        }
+    }()
+}
+
+func main() {
+    const numWorkers = 3
+    const numJobs = 10
+
+    var wg sync.WaitGroup
+    jobChannel := make(chan Job, numJobs)
+
+    // Start workers
+    for i := 1; i <= numWorkers; i++ {
+        worker := Worker{
+            id:         i,
+            jobChannel: jobChannel,
+            wg:         &wg,
+        }
+        worker.start()
+    }
+
+    // Send jobs
+    for i := 1; i <= numJobs; i++ {
+        wg.Add(1)
+        jobChannel <- Job{id: i, data: fmt.Sprintf("Task %d", i)}
+    }
+
+    close(jobChannel)
+    wg.Wait()
+    fmt.Println("All jobs completed")
+}
+#+END_SRC
+
+** SQL Example
+
+#+BEGIN_SRC sql
+-- Create users table
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_login TIMESTAMP
+);
+
+-- Create posts table with foreign key
+CREATE TABLE posts (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(200) NOT NULL,
+    content TEXT,
+    published BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create index for faster queries
+CREATE INDEX idx_posts_user_id ON posts(user_id);
+CREATE INDEX idx_posts_published ON posts(published);
+
+-- Complex query with JOIN
+SELECT
+    u.username,
+    u.email,
+    COUNT(p.id) as post_count,
+    MAX(p.created_at) as last_post_date
+FROM users u
+LEFT JOIN posts p ON u.id = p.user_id
+WHERE p.published = TRUE
+GROUP BY u.id, u.username, u.email
+HAVING COUNT(p.id) > 5
+ORDER BY post_count DESC
+LIMIT 10;
+#+END_SRC
+
+** HTML/CSS Example
+
+#+BEGIN_SRC html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Card Layout</title>
+    <style>
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .card p {
+            color: #666;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="card-container">
+        <div class="card">
+            <h3>Card Title 1</h3>
+            <p>This is the content of the first card.</p>
+        </div>
+        <div class="card">
+            <h3>Card Title 2</h3>
+            <p>This is the content of the second card.</p>
+        </div>
+    </div>
+</body>
+</html>
+#+END_SRC
+
+** JSON Example
+
+#+BEGIN_SRC json
+{
+  "api_version": "v1",
+  "metadata": {
+    "name": "user-service",
+    "version": "1.2.3",
+    "description": "User management microservice"
+  },
+  "configuration": {
+    "database": {
+      "host": "localhost",
+      "port": 5432,
+      "name": "users_db",
+      "pool_size": 20
+    },
+    "cache": {
+      "enabled": true,
+      "ttl": 3600,
+      "max_size": 1000
+    },
+    "security": {
+      "jwt_secret": "${JWT_SECRET}",
+      "token_expiry": 86400,
+      "refresh_token_expiry": 604800
+    }
+  },
+  "endpoints": [
+    {
+      "path": "/api/users",
+      "method": "GET",
+      "auth_required": true
+    },
+    {
+      "path": "/api/users/:id",
+      "method": "GET",
+      "auth_required": true
+    },
+    {
+      "path": "/api/users",
+      "method": "POST",
+      "auth_required": true,
+      "rate_limit": 10
+    }
+  ]
+}
+#+END_SRC
+
+** YAML Example
+
+#+BEGIN_SRC yaml
+# Docker Compose configuration
+version: '3.8'
+
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./html:/usr/share/nginx/html:ro
+    networks:
+      - frontend
+    depends_on:
+      - api
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://user:pass@db:5432/myapp
+      - REDIS_URL=redis://cache:6379
+    ports:
+      - "3000:3000"
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - db
+      - cache
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: myapp
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  cache:
+    image: redis:7-alpine
+    networks:
+      - backend
+
+networks:
+  frontend:
+  backend:
+
+volumes:
+  postgres_data:
+#+END_SRC
+
+* Example Blocks
+
+** Basic Example Block
+
+#+BEGIN_EXAMPLE
+This is an example block.
+It preserves formatting and spacing exactly.
+    Including indentation
+        and multiple levels
+No syntax highlighting is applied.
+
+Use this for:
+- Command output
+- Plain text examples
+- ASCII art
+- Formatted text that shouldn't be interpreted
+#+END_EXAMPLE
+
+** Command Output Example
+
+#+BEGIN_EXAMPLE
+$ ls -la
+total 96
+drwxr-xr-x  12 user  staff   384 Jan 15 10:30 .
+drwxr-xr-x  25 user  staff   800 Jan 15 10:25 ..
+-rw-r--r--   1 user  staff  6148 Jan 15 10:30 .DS_Store
+drwxr-xr-x  13 user  staff   416 Jan 15 10:25 .git
+-rw-r--r--   1 user  staff   125 Jan 15 10:25 .gitignore
+-rw-r--r--   1 user  staff  1234 Jan 15 10:25 README.md
+drwxr-xr-x   5 user  staff   160 Jan 15 10:25 src
+-rw-r--r--   1 user  staff   567 Jan 15 10:25 package.json
+#+END_EXAMPLE
+
+** ASCII Art Example
+
+#+BEGIN_EXAMPLE
+    ╔═══════════════════════════════════════╗
+    ║                                       ║
+    ║         Welcome to Org-mode!          ║
+    ║                                       ║
+    ╚═══════════════════════════════════════╝
+
+         /\___/\
+        /       \
+       l  u   u  l
+       |  >   <  |
+       \  /__\  /
+         \_____/
+#+END_EXAMPLE
+
+* Inline Code and Verbatim
+
+This paragraph contains ~inline code snippets~ like ~const x = 42;~ and
+=verbatim text= such as =config.yaml= or =/etc/nginx/nginx.conf=.
+
+File paths: ~/home/user/documents~ or =/var/log/app.log=
+
+Commands: ~npm install~ or ~docker-compose up -d~
+
+Configuration values: =PORT=3000= or =DEBUG=true=
+
+* Inline Source Blocks
+
+You can execute inline code like src_python{return 2 + 2} or
+src_javascript{return "Hello".toUpperCase()} within text.
+
+More examples:
+- Python calculation: src_python{sum([1, 2, 3, 4, 5])}
+- JavaScript date: src_javascript{new Date().toISOString()}
+- Emacs Lisp: src_emacs-lisp{(+ 10 20 30)}
+
+* Fixed-Width Regions
+
+Lines starting with a colon are treated as fixed-width preformatted text:
+
+: This is a fixed-width line
+: It preserves    spacing   and   formatting
+:     Including indentation
+:
+: Empty lines are also preserved
+:
+: Use this for simple code snippets or formatted output
+: without needing a full block structure
+
+Example of configuration file:
+
+: server {
+:     listen 80;
+:     server_name example.com;
+:
+:     location / {
+:         proxy_pass http://localhost:3000;
+:         proxy_set_header Host $host;
+:     }
+: }
+
+* Code Blocks with Header Arguments
+
+** Named Source Block
+
+#+NAME: fibonacci-function
+#+BEGIN_SRC python
+def fib(n):
+    if n <= 1:
+        return n
+    return fib(n-1) + fib(n-2)
+#+END_SRC
+
+** Source Block with Line Numbers
+
+#+BEGIN_SRC python -n
+def quick_sort(arr):
+    if len(arr) <= 1:
+        return arr
+    pivot = arr[len(arr) // 2]
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    return quick_sort(left) + middle + quick_sort(right)
+
+# Example usage
+numbers = [3, 6, 8, 10, 1, 2, 1]
+print(quick_sort(numbers))
+#+END_SRC
+
+** Source Block with Exports Settings
+
+#+BEGIN_SRC javascript :exports both
+// Calculate factorial
+function factorial(n) {
+    if (n === 0 || n === 1) return 1;
+    return n * factorial(n - 1);
+}
+
+console.log(factorial(5));  // Output: 120
+#+END_SRC

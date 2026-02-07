@@ -1,0 +1,6 @@
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+  <!-- Split preview icon: document with magnifier, similar to VS Code's Markdown preview icon -->
+  <path d="M2 2h5v12H2V2zm1 1v10h3V3H3zm6-1h5v7h-5V2zm1 1v5h3V3h-3z"/>
+  <circle cx="12" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="1"/>
+  <line x1="14" y1="14" x2="15.5" y2="15.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+</svg>

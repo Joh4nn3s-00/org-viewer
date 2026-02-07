@@ -1,0 +1,169 @@
+#+TITLE: Org-mode Basics: Headings and Text Formatting
+#+AUTHOR: Demo Collection
+#+DATE: 2024-01-15
+
+This file demonstrates the fundamental building blocks of Org-mode documents:
+headings at all levels, TODO keywords, priorities, tags, and all inline
+text formatting options.
+
+* First Level Heading
+
+This is regular paragraph text under a first-level heading. Paragraphs can
+span multiple lines and will wrap naturally. You can include various inline
+formatting within paragraphs as shown below.
+
+** Second Level Heading
+
+Second-level headings are great for major subsections. Here we demonstrate
+*bold text*, /italic text/, and _underlined text_. You can also combine
+them: */bold italic/*, _/*underlined bold italic*/_. \\
+This line follows a line break.
+
+*** Third Level Heading
+
+Third-level headings dive deeper into topics. Use =verbatim text= for literal
+values and ~code snippets~ for inline code. You can also use +strikethrough+
+for deleted or deprecated content.
+
+**** Fourth Level Heading
+
+Mathematical notation uses superscripts like e^{2} or E = mc^{2}, and
+subscripts like H_{2}O or x_{1}, x_{2}, ..., x_{n}.
+
+***** Fifth Level Heading
+
+Special entities provide symbols: \alpha, \beta, \gamma, \Delta, \rightarrow,
+\Rightarrow, \infty, \sum, \int, \LaTeX, \TeX. These render as proper symbols.
+
+****** Sixth Level Heading
+
+This is the deepest standard heading level in Org-mode. It's useful for very
+detailed hierarchical documents but use sparingly to avoid overwhelming depth.
+
+* TODO Headings with Keywords
+
+** TODO This task is not yet complete
+   DEADLINE: <2024-01-20 Sat>
+
+This heading has a TODO keyword, indicating it's an actionable item. The
+deadline shows when it should be completed.
+
+** DONE This task has been completed
+   CLOSED: [2024-01-15 Mon 14:30]
+
+Tasks marked DONE are complete. The CLOSED timestamp records when they were
+finished.
+
+** TODO This task is in progress
+   SCHEDULED: <2024-01-16 Tue>
+
+Scheduled timestamps indicate when you plan to start working on a task.
+
+* Headings with Priority Cookies
+
+** TODO [#A] High priority critical bug fix
+
+Priority A items are urgent and important. They should be addressed first.
+
+** TODO [#B] Medium priority feature request
+
+Priority B items are important but not urgent. Handle after priority A items.
+
+** TODO [#C] Low priority documentation update
+
+Priority C items are nice to have. Work on these when higher priorities are done.
+
+* Headings with Tags                                                    :demo:
+
+** Project Planning                                               :work:planning:
+
+Tags help categorize and filter headings. This heading has both work and
+planning tags.
+
+** Personal Development                                      :personal:learning:
+
+You can use tags to quickly find related items across your Org files.
+
+** Team Meeting Notes                                    :meeting:team:important:
+
+Multiple tags create a flexible organization system. Tags are inherited by
+child headings.
+
+*** Action Items                                                   :actionable:
+
+This inherits :meeting:team:important: from parent and adds :actionable:.
+
+* Headings with Statistics Cookies
+
+** Project Tasks [2/5]
+
+Statistics cookies track progress. This format shows 2 out of 5 items complete.
+
+*** TODO Design mockups
+*** DONE Initial research
+*** TODO Backend implementation
+*** DONE Requirements gathering
+*** TODO Testing and QA
+
+** Sprint Goals [40%]
+
+Percentage format shows 40% completion. Useful for progress tracking.
+
+*** DONE Setup development environment
+*** DONE Configure CI/CD pipeline
+*** TODO Implement authentication
+*** TODO Add user dashboard
+*** TODO Deploy to staging
+
+* Combined Features Demonstration
+
+** TODO [#A] Q1 Release Planning [3/7]                    :project:milestone:
+   SCHEDULED: <2024-01-18 Thu>
+   DEADLINE: <2024-03-31 Sun>
+
+This heading combines: TODO keyword, priority [#A], statistics cookie [3/7],
+tags :project:milestone:, and both SCHEDULED and DEADLINE timestamps.
+
+The body contains *bold statements*, /italic emphasis/, and ~code references~.
+We need to achieve e^{growth} where growth > 1.5, focusing on H_{2}O treatment
+efficiency \rightarrow increased capacity.
+
+Key metrics include:
+- \alpha (confidence level) = 0.95
+- \beta (power) = 0.80
+- Performance \Delta > 20%
+
+*** DONE Phase 1: Requirements
+*** DONE Phase 2: Design
+*** DONE Phase 3: Prototype
+*** TODO Phase 4: Implementation
+*** TODO Phase 5: Testing
+*** TODO Phase 6: Documentation
+*** TODO Phase 7: Deployment
+
+* Text Formatting Showcase
+
+This paragraph demonstrates all inline formatting in context. We have *bold
+assertions* and /italic emphasis/ for style. Use _underlines_ sparingly for
+emphasis. Technical writing includes =literal values= like =config.yaml= and
+~code snippets~ like ~function()~. Mark +deprecated features+ with
+strikethrough.
+
+Scientific notation: E = mc^{2}, velocity v = x/t, concentration C =
+n_{solute}/V_{solution}. Chemical formulas: H_{2}SO_{4}, CO_{2}, C_{6}H_{12}O_{6}.
+
+Mathematical symbols: \alpha + \beta = \gamma, A \cup B, x \in \mathbb{R},
+f: X \rightarrow Y, \sum_{i=1}^{n} x_{i}, \int_{0}^{\infty} e^{-x}dx = 1,
+\LaTeX and \TeX for typesetting.
+
+Special characters: \copyright, \registered, \trademark, \euro, \pound,
+\degree, \pm, \times, \div, \leq, \geq, \neq, \approx, \equiv.
+
+Combining formats: */bold italic/*, _/underlined italic/_, *_bold underlined_*,
+=_literal underlined_=, ~*code bold*~ (though some combinations may not render
+as expected depending on the parser).
+
+Multiple spaces     are     preserved     in     some     contexts.
+Line breaks force new lines\\
+like this one\\
+and this one.

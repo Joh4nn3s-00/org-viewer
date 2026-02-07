@@ -1,0 +1,618 @@
+#+TITLE: Org-mode Blocks: Quotes, Centers, Comments, and Special Elements
+#+AUTHOR: Demo Collection
+#+DATE: 2024-01-15
+
+This file demonstrates all block types and special elements in Org-mode:
+quote blocks, center blocks, verse blocks, comment blocks, export blocks,
+line comments, horizontal rules, and LaTeX formatting.
+
+* Quote Blocks
+
+** Simple Quote
+
+#+BEGIN_QUOTE
+The best way to predict the future is to invent it.
+— Alan Kay
+#+END_QUOTE
+
+** Multi-Paragraph Quote
+
+#+BEGIN_QUOTE
+In the beginner's mind there are many possibilities, but in the expert's
+mind there are few. When we start learning something new, we approach it
+with an open mind and fresh perspective.
+
+As we gain expertise, we often become constrained by what we already know,
+limiting our creativity and problem-solving ability. The challenge is to
+maintain that beginner's mindset even as we gain experience.
+
+— Shunryu Suzuki, "Zen Mind, Beginner's Mind"
+#+END_QUOTE
+
+** Quote with Inline Formatting
+
+#+BEGIN_QUOTE
+*Programs must be written for people to read*, and only /incidentally/ for
+machines to execute. The programming language is a tool for ~human thought~
+and =communication= first, and a notation for instructing computers second.
+
+— Harold Abelson and Gerald Jay Sussman, "Structure and Interpretation of
+Computer Programs"
+#+END_QUOTE
+
+** Nested Quote-Like Structure
+
+#+BEGIN_QUOTE
+As Albert Einstein once noted:
+
+"The important thing is not to stop questioning. Curiosity has its own
+reason for existing."
+
+This principle applies especially well to software development, where
+constant questioning of assumptions leads to better designs and more robust
+solutions.
+#+END_QUOTE
+
+* Center Blocks
+
+** Centered Text
+
+#+BEGIN_CENTER
+This text is centered.
+Perfect for titles or emphasis.
+#+END_CENTER
+
+** Centered Heading-Style Text
+
+#+BEGIN_CENTER
+*IMPORTANT ANNOUNCEMENT*
+
+System Maintenance Scheduled
+
+January 20, 2024
+2:00 AM - 6:00 AM UTC
+
+Services will be unavailable during this time.
+#+END_CENTER
+
+** Centered Content with Formatting
+
+#+BEGIN_CENTER
+/Elegant centered text/
+
+Can include *bold*, /italic/, and ~code~
+
+Multiple lines centered together
+#+END_CENTER
+
+* Verse Blocks
+
+** Simple Poem
+
+#+BEGIN_VERSE
+Two roads diverged in a yellow wood,
+And sorry I could not travel both
+And be one traveler, long I stood
+And looked down one as far as I could
+To where it bent in the undergrowth;
+
+— Robert Frost, "The Road Not Taken"
+#+END_VERSE
+
+** Code-Like Verse
+
+#+BEGIN_VERSE
+function life() {
+  while (breathing) {
+    learn();
+    grow();
+    contribute();
+  }
+  return legacy;
+}
+
+— A Developer's Philosophy
+#+END_VERSE
+
+** Haiku in Verse Block
+
+#+BEGIN_VERSE
+Code written today
+Tomorrow's legacy, maybe
+Or tomorrow's tech debt
+
+— Anonymous Developer
+#+END_VERSE
+
+* Comment Blocks
+
+** This Section Has Hidden Content
+
+#+BEGIN_COMMENT
+This entire block is a comment and should not be rendered in the output.
+It's useful for:
+- Draft content you're not ready to publish
+- Notes to yourself about the document
+- Temporarily disabling content without deleting it
+- Internal documentation that shouldn't be exported
+
+You can write anything here and it won't appear in exports.
+#+END_COMMENT
+
+The comment block above this paragraph is invisible in rendered output.
+
+** Mixed Content with Comments
+
+This is visible content.
+
+#+BEGIN_COMMENT
+This is hidden and won't be exported.
+It contains notes about the section above.
+TODO: Expand this section with more examples.
+#+END_COMMENT
+
+More visible content continues here.
+
+* Line Comments
+
+# This is a line comment - it won't be rendered
+# Line comments start with # at the beginning of a line
+# They're useful for quick notes that shouldn't be exported
+
+This paragraph is visible.
+
+# TODO: Add more examples here
+# NOTE: Remember to update the statistics
+# FIXME: This section needs revision
+
+Another visible paragraph.
+
+# Multiple comment lines can appear together
+# They're good for:
+# - Temporary notes
+# - Reminders
+# - Disabled content
+# - Internal documentation
+
+* Horizontal Rules
+
+Horizontal rules create visual separations in documents.
+
+-----
+
+This is a five-dash horizontal rule above this text.
+
+-------------
+
+Longer rules work too - this one has 13 dashes.
+
+Content above rule.
+
+-----------
+
+Content below rule.
+
+** Section Separators
+
+Introduction paragraph.
+
+-----
+
+*Part 1: Background*
+
+Some content about background.
+
+-----
+
+*Part 2: Implementation*
+
+Some content about implementation.
+
+-----
+
+*Part 3: Conclusions*
+
+Final thoughts and conclusions.
+
+* Export Blocks
+
+** HTML Export Block
+
+#+BEGIN_EXPORT html
+<div class="custom-container">
+  <h3>Custom HTML Content</h3>
+  <p>This content is exported only to HTML output.</p>
+  <ul>
+    <li>Item one</li>
+    <li>Item two</li>
+  </ul>
+</div>
+#+END_EXPORT
+
+** LaTeX Export Block
+
+#+BEGIN_EXPORT latex
+\begin{center}
+\textbf{This content appears only in LaTeX/PDF exports}
+\end{center}
+
+\noindent This is a custom LaTeX block that gives you full control over
+the LaTeX output. Useful for:
+\begin{itemize}
+\item Custom formatting
+\item Special LaTeX commands
+\item Precise typesetting control
+\end{itemize}
+#+END_EXPORT
+
+** Markdown Export Block
+
+#+BEGIN_EXPORT markdown
+# This is Markdown
+
+This block is exported only when converting to Markdown.
+
+- Bullet one
+- Bullet two
+- Bullet three
+
+**Bold text** and *italic text* in Markdown format.
+#+END_EXPORT
+
+* Export Snippets
+
+This paragraph contains an inline HTML snippet @@html:<span class="highlight">highlighted text</span>@@ that only appears in HTML exports.
+
+Here's a LaTeX snippet @@latex:\textbf{bold in LaTeX}@@ for PDF output.
+
+Multiple snippets can appear: @@html:<br>@@ for line breaks in HTML, or
+@@latex:\newline@@ for LaTeX.
+
+* LaTeX Formatting
+
+** Inline Math
+
+*** Simple Equations
+
+Einstein's famous equation: $E = mc^2$
+
+Pythagorean theorem: $a^2 + b^2 = c^2$
+
+Quadratic formula: $x = \frac{-b \pm \sqrt{b^2-4ac}}{2a}$
+
+*** Math in Sentences
+
+The area of a circle is $A = \pi r^2$ where $r$ is the radius. For a circle
+with radius $r = 5$ units, the area is $A = 25\pi \approx 78.54$ square units.
+
+The probability density function of a normal distribution is
+$f(x) = \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{1}{2}(\frac{x-\mu}{\sigma})^2}$
+where $\mu$ is the mean and $\sigma$ is the standard deviation.
+
+** Alternative Inline Math Syntax
+
+Using \(parentheses\) for inline math: \(f(x) = x^2 + 2x + 1\)
+
+The derivative: \(\frac{df}{dx} = 2x + 2\)
+
+Integration: \(\int_0^1 x^2 dx = \frac{1}{3}\)
+
+** Display Math (Double Dollar Signs)
+
+Centered display equations use double dollar signs:
+
+$$\int_0^\infty e^{-x} dx = 1$$
+
+$$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$
+
+$$\lim_{x \to \infty} \frac{1}{x} = 0$$
+
+** Display Math (Escaped Brackets)
+
+Alternative display math syntax:
+
+\[
+\nabla \times \vec{E} = -\frac{\partial \vec{B}}{\partial t}
+\]
+
+\[
+\nabla \cdot \vec{B} = 0
+\]
+
+** Complex Mathematical Expressions
+
+*** Matrix Notation
+
+The transformation matrix:
+$$
+\begin{pmatrix}
+a & b \\
+c & d
+\end{pmatrix}
+\begin{pmatrix}
+x \\
+y
+\end{pmatrix}
+=
+\begin{pmatrix}
+ax + by \\
+cx + dy
+\end{pmatrix}
+$$
+
+*** Summation and Products
+
+$$
+\sum_{i=1}^{n} \sum_{j=1}^{m} a_{ij} = \sum_{j=1}^{m} \sum_{i=1}^{n} a_{ij}
+$$
+
+$$
+\prod_{i=1}^{n} x_i = x_1 \cdot x_2 \cdot \ldots \cdot x_n
+$$
+
+*** Calculus Expressions
+
+The fundamental theorem of calculus:
+
+$$
+\int_a^b f(x)dx = F(b) - F(a)
+$$
+
+where $F'(x) = f(x)$
+
+Chain rule:
+
+$$
+\frac{d}{dx}[f(g(x))] = f'(g(x)) \cdot g'(x)
+$$
+
+*** Systems of Equations
+
+\[
+\begin{cases}
+x + y = 5 \\
+2x - y = 1
+\end{cases}
+\]
+
+Solution: $x = 2, y = 3$
+
+** LaTeX Environments
+
+*** Equation Environment
+
+\begin{equation}
+E = mc^2
+\end{equation}
+
+\begin{equation}
+F = ma
+\end{equation}
+
+*** Align Environment
+
+\begin{align}
+f(x) &= x^2 + 2x + 1 \\
+     &= (x + 1)^2
+\end{align}
+
+\begin{align}
+\nabla \cdot \vec{E} &= \frac{\rho}{\epsilon_0} \\
+\nabla \times \vec{E} &= -\frac{\partial \vec{B}}{\partial t}
+\end{align}
+
+*** Multline Environment
+
+\begin{multline}
+(x + y)^3 = x^3 + 3x^2y + 3xy^2 + y^3 \\
+= x^3 + y^3 + 3xy(x + y)
+\end{multline}
+
+** Special Mathematical Symbols
+
+*** Greek Letters
+
+Lowercase: $\alpha, \beta, \gamma, \delta, \epsilon, \zeta, \eta, \theta,
+\iota, \kappa, \lambda, \mu, \nu, \xi, \pi, \rho, \sigma, \tau, \upsilon,
+\phi, \chi, \psi, \omega$
+
+Uppercase: $\Gamma, \Delta, \Theta, \Lambda, \Xi, \Pi, \Sigma, \Upsilon,
+\Phi, \Psi, \Omega$
+
+*** Operators and Relations
+
+Set theory: $\in, \notin, \subset, \subseteq, \supset, \supseteq, \cup,
+\cap, \emptyset, \forall, \exists$
+
+Logic: $\land, \lor, \neg, \implies, \iff$
+
+Relations: $\leq, \geq, \neq, \approx, \equiv, \sim, \propto$
+
+Arrows: $\rightarrow, \leftarrow, \leftrightarrow, \Rightarrow, \Leftarrow,
+\Leftrightarrow, \uparrow, \downarrow$
+
+*** Special Functions
+
+$\sin, \cos, \tan, \log, \ln, \exp, \lim, \sup, \inf, \max, \min$
+
+Examples:
+- $\sin(x)$, $\cos(x)$, $\tan(x)$
+- $\log_2(8) = 3$
+- $\lim_{x \to 0} \frac{\sin x}{x} = 1$
+
+** Advanced LaTeX Examples
+
+*** Calculus
+
+Partial derivatives:
+$$
+\frac{\partial f}{\partial x}, \quad
+\frac{\partial^2 f}{\partial x^2}, \quad
+\frac{\partial^2 f}{\partial x \partial y}
+$$
+
+Multiple integrals:
+$$
+\int\int_D f(x,y) \, dA = \int_a^b \int_{g_1(x)}^{g_2(x)} f(x,y) \, dy \, dx
+$$
+
+*** Linear Algebra
+
+Vector notation: $\vec{v}, \vec{a}, \vec{b}$
+
+Dot product: $\vec{a} \cdot \vec{b} = |\vec{a}||\vec{b}|\cos\theta$
+
+Cross product: $\vec{a} \times \vec{b}$
+
+Matrix determinant:
+$$
+\det(A) = \begin{vmatrix}
+a & b \\
+c & d
+\end{vmatrix} = ad - bc
+$$
+
+*** Statistics
+
+Normal distribution: $X \sim N(\mu, \sigma^2)$
+
+Probability: $P(A \cap B) = P(A) \cdot P(B|A)$
+
+Expected value: $E[X] = \sum_{i} x_i P(X = x_i)$
+
+Variance: $\text{Var}(X) = E[(X - \mu)^2] = E[X^2] - (E[X])^2$
+
+* Combined Block Examples
+
+** Quote with Math
+
+#+BEGIN_QUOTE
+Mathematics is the language in which God has written the universe. The
+fundamental equations like $E = mc^2$ and $F = ma$ reveal deep truths about
+the nature of reality.
+
+— Galileo Galilei (paraphrased)
+#+END_QUOTE
+
+** Centered Math
+
+#+BEGIN_CENTER
+*The Golden Ratio*
+
+$$\phi = \frac{1 + \sqrt{5}}{2} \approx 1.618$$
+
+Found throughout nature and art
+#+END_CENTER
+
+** Verse with Horizontal Rules
+
+-----
+
+#+BEGIN_VERSE
+In mathematics, as in life,
+Patterns emerge from chaos,
+Order from randomness,
+Beauty from complexity.
+#+END_VERSE
+
+-----
+
+* Special Characters and Entities
+
+** Common Entities
+
+Copyright: \copy or \copyright
+
+Registered: \reg
+
+Trademark: \trade
+
+Degree: 32\deg F = 0\deg C
+
+Euro: \euro
+
+Pound: \pound
+
+** Math Entities
+
+Plus-minus: \pm
+
+Multiplication: \times
+
+Division: \div
+
+Not equal: \neq
+
+Less than or equal: \leq
+
+Greater than or equal: \geq
+
+Approximately: \approx
+
+Infinity: \infty
+
+** Arrows and Symbols
+
+Right arrow: \rightarrow
+
+Left arrow: \leftarrow
+
+Double arrow: \Rightarrow
+
+Left-right arrow: \leftrightarrow
+
+Up arrow: \uparrow
+
+Down arrow: \downarrow
+
+* Block Combinations
+
+This section shows how different blocks can be combined:
+
+#+BEGIN_QUOTE
+Code quality is not just about making it work. As Robert C. Martin states:
+
+#+BEGIN_CENTER
+*"Clean code is simple and direct."*
+#+END_CENTER
+
+The goal is to write code that others can easily understand and maintain.
+#+END_QUOTE
+
+-----
+
+# This is a comment between sections
+# It won't appear in the output
+
+#+BEGIN_CENTER
+Mathematical beauty in programming:
+
+$$f(n) = \begin{cases}
+0 & \text{if } n = 0 \\
+1 & \text{if } n = 1 \\
+f(n-1) + f(n-2) & \text{if } n > 1
+\end{cases}$$
+
+/The Fibonacci sequence/
+#+END_CENTER
+
+-----
+
+* Empty and Edge Case Blocks
+
+** Empty Quote
+
+#+BEGIN_QUOTE
+#+END_QUOTE
+
+** Empty Center
+
+#+BEGIN_CENTER
+#+END_CENTER
+
+** Block with Only Whitespace
+
+#+BEGIN_QUOTE
+
+
+#+END_QUOTE

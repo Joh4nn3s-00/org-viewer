@@ -1,0 +1,425 @@
+#+TITLE: Org-mode Metadata: Properties, Drawers, Timestamps
+#+AUTHOR: Jane Smith
+#+DATE: 2024-01-15
+#+EMAIL: jane.smith@example.com
+#+LANGUAGE: en
+#+DESCRIPTION: Comprehensive demonstration of Org-mode metadata features
+#+KEYWORDS: org-mode, metadata, properties, timestamps
+#+OPTIONS: toc:2 num:t todo:t tags:t ':t H:4
+#+STARTUP: overview
+#+CATEGORY: Documentation
+#+FILETAGS: :demo:metadata:reference:
+
+This file demonstrates all metadata-related features in Org-mode: document
+keywords, property drawers, custom drawers, planning information, timestamps
+in various formats, clock entries, and node properties.
+
+* Document-Level Keywords
+
+The keywords at the top of this file (#+TITLE, #+AUTHOR, etc.) are document-level
+metadata. They configure how the document is processed and exported.
+
+Common keywords demonstrated above:
+- TITLE: Document title
+- AUTHOR: Author name
+- DATE: Document date
+- EMAIL: Contact email
+- LANGUAGE: Document language code
+- DESCRIPTION: Brief description for exports
+- KEYWORDS: Search keywords
+- OPTIONS: Export and display options
+- STARTUP: Initial fold state when opening
+- CATEGORY: Default category for agenda items
+- FILETAGS: Tags applied to all headings
+
+* Property Drawers
+
+** Heading with Basic Properties
+   :PROPERTIES:
+   :CREATED:  [2024-01-15 Mon 10:00]
+   :CUSTOM_ID: basic-properties
+   :CATEGORY: Examples
+   :EFFORT:   2:00
+   :END:
+
+This heading has a property drawer with several common properties. The
+CUSTOM_ID allows stable linking, CATEGORY helps organize in agenda views,
+and EFFORT estimates time required.
+
+** Project Task with Extended Properties
+   :PROPERTIES:
+   :CUSTOM_ID: project-task-example
+   :ASSIGNED: Alice Johnson
+   :PRIORITY: High
+   :STARTED:  [2024-01-10 Wed]
+   :DEADLINE_DATE: <2024-01-25 Thu>
+   :ESTIMATED_HOURS: 16
+   :ACTUAL_HOURS: 8
+   :STATUS:   In Progress
+   :CATEGORY: Development
+   :PROJECT:  UserAuth
+   :TAGS:     backend security
+   :END:
+
+Custom properties can store any key-value pairs relevant to your workflow.
+This example shows project management properties.
+
+** Document Reference with Metadata
+   :PROPERTIES:
+   :CUSTOM_ID: document-reference
+   :DOCUMENT_TYPE: Technical Specification
+   :VERSION:  2.1.0
+   :REVIEWED_BY: Bob Smith, Carol Davis
+   :REVIEW_DATE: [2024-01-12 Fri]
+   :STATUS:   Approved
+   :LOCATION: [[file:~/docs/specs/auth-spec.org]]
+   :RELATED:  [[#api-design]], [[#security-considerations]]
+   :END:
+
+Properties can include links to other documents or sections.
+
+* Custom Drawers
+
+** LOGBOOK Drawer for Activity Tracking
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2024-01-15 Mon 14:30]
+   - State "TODO"       from "IN-PROGRESS" [2024-01-15 Mon 09:15]
+   - State "IN-PROGRESS" from "TODO"      [2024-01-14 Sun 16:45]
+   - Note taken on [2024-01-14 Sun 16:50] \\
+     Started implementation after design review approval
+   - Note taken on [2024-01-13 Sat 11:20] \\
+     Discussed approach with team lead, got green light to proceed
+   :END:
+
+The LOGBOOK drawer tracks state changes and notes. Org-mode can automatically
+populate this when you change TODO states or add notes.
+
+** Custom NOTES Drawer
+
+*** Meeting Discussion Points
+    :NOTES:
+    Discussion points from team meeting on [2024-01-12 Fri]:
+
+    - Reviewed current architecture limitations
+    - Discussed three potential solutions:
+      1. Microservices approach (team preferred)
+      2. Modular monolith
+      3. Event-driven architecture
+    - Decided to prototype microservices approach
+    - Timeline: 2 weeks for proof of concept
+
+    Action items assigned in main heading.
+    :END:
+
+Custom drawers can organize related information. Use any name except reserved
+ones like PROPERTIES, LOGBOOK, and CLOCK.
+
+** REFERENCES Drawer
+   :REFERENCES:
+   - [[https://martinfowler.com/articles/microservices.html][Microservices Guide by Martin Fowler]]
+   - [[https://12factor.net/][The Twelve-Factor App Methodology]]
+   - Internal doc: [[file:~/docs/architecture/service-design.org][Service Design Guidelines]]
+   - Related ticket: [[https://jira.company.com/browse/PROJ-1234][PROJ-1234]]
+   :END:
+
+A REFERENCES drawer can collect all related links and citations.
+
+* Planning Information and Timestamps
+
+** TODO Task with Scheduled Date
+   SCHEDULED: <2024-01-18 Thu>
+
+This task is scheduled to start on January 18th. The SCHEDULED timestamp
+indicates when you plan to work on it.
+
+** TODO Task with Deadline
+   DEADLINE: <2024-01-22 Mon>
+
+This task must be completed by January 22nd. The DEADLINE timestamp indicates
+when it's due.
+
+** TODO Task with Both Scheduled and Deadline
+   SCHEDULED: <2024-01-16 Tue> DEADLINE: <2024-01-20 Sat>
+
+Tasks can have both scheduled start and deadline dates.
+
+** DONE Completed Task with Closed Timestamp
+   CLOSED: [2024-01-15 Mon 15:45]
+
+Completed tasks can record when they were finished using a CLOSED timestamp.
+This is automatically added when you mark a TODO as DONE (if configured).
+
+** TODO Urgent Task with Warning Period
+   DEADLINE: <2024-01-25 Thu -3d>
+
+The -3d indicates a warning period. You'll be warned 3 days before the deadline.
+
+** TODO Recurring Task Weekly
+   SCHEDULED: <2024-01-17 Wed +1w>
+
+The +1w makes this a repeating task that recurs every week. When marked DONE,
+it automatically reschedules to the next week.
+
+** TODO Recurring Task Monthly
+   SCHEDULED: <2024-02-01 Thu +1m>
+
+Monthly recurring task using +1m repeater.
+
+** TODO Task with Delay After Completion
+   SCHEDULED: <2024-01-20 Sat .+2w>
+
+The .+2w means this task will be scheduled 2 weeks after completion, not from
+the original scheduled date. Useful for tasks like "review backups".
+
+* Timestamp Variations
+
+** Active Timestamps
+
+Active timestamps appear in agenda views:
+
+Meeting scheduled for <2024-01-18 Thu 14:00>.
+
+Conference call on <2024-01-19 Fri 10:30-11:30>.
+
+Project deadline is <2024-02-15 Thu>.
+
+** Inactive Timestamps
+
+Inactive timestamps (in square brackets) don't appear in agenda:
+
+Document created on [2024-01-15 Mon 09:00].
+
+Last modified [2024-01-15 Mon 16:30].
+
+Reference date for historical context [2023-12-01 Fri].
+
+** Timestamp Ranges
+
+Project duration: <2024-01-15 Mon>--<2024-02-15 Thu>
+
+Vacation period: <2024-03-10 Sun>--<2024-03-17 Sun>
+
+Sprint timeline: <2024-01-22 Mon>--<2024-02-02 Fri>
+
+** Timestamps with Times
+
+Stand-up meeting: <2024-01-16 Tue 09:00>
+
+Lunch break: <2024-01-16 Tue 12:00-13:00>
+
+Client presentation: <2024-01-19 Fri 15:30-16:30>
+
+All-hands meeting: <2024-01-20 Sat 10:00-12:00>
+
+** Timestamps with Repeaters and Delays
+
+Weekly team sync: <2024-01-17 Wed 10:00 +1w>
+
+Bi-weekly sprint planning: <2024-01-22 Mon 14:00 +2w>
+
+Monthly review: <2024-02-01 Thu 15:00 +1m>
+
+Quarterly planning: <2024-04-01 Mon 09:00 +3m>
+
+** Diary-Style Timestamps
+
+Anniversary: <%%(diary-anniversary 1 15 2020)>
+
+Every Monday: <%%(diary-block 1 1 2024 12 31 2024)>
+
+* Clock Entries
+
+** Task with Time Tracking
+   :LOGBOOK:
+   CLOCK: [2024-01-15 Mon 14:00]--[2024-01-15 Mon 16:30] =>  2:30
+   CLOCK: [2024-01-15 Mon 09:00]--[2024-01-15 Mon 11:45] =>  2:45
+   CLOCK: [2024-01-14 Sun 15:00]--[2024-01-14 Sun 18:00] =>  3:00
+   :END:
+   :PROPERTIES:
+   :EFFORT:   8:00
+   :END:
+
+CLOCK entries track time spent on tasks. The format shows start time, end time,
+and duration. This task has logged 8:15 total against an 8:00 estimate.
+
+** Currently Active Clock
+   :LOGBOOK:
+   CLOCK: [2024-01-15 Mon 16:45]
+   CLOCK: [2024-01-15 Mon 13:00]--[2024-01-15 Mon 14:30] =>  1:30
+   :END:
+
+A CLOCK entry without an end time represents an active clock. You're currently
+working on this task.
+
+** Project with Detailed Time Tracking
+   :LOGBOOK:
+   CLOCK: [2024-01-15 Mon 11:00]--[2024-01-15 Mon 12:00] =>  1:00
+   - Note taken on [2024-01-15 Mon 12:00] \\
+     Completed API endpoint implementation
+   CLOCK: [2024-01-14 Sun 09:00]--[2024-01-14 Sun 12:30] =>  3:30
+   - Note taken on [2024-01-14 Sun 12:30] \\
+     Designed database schema and wrote migration
+   CLOCK: [2024-01-13 Sat 14:00]--[2024-01-13 Sat 16:45] =>  2:45
+   - Note taken on [2024-01-13 Sat 16:45] \\
+     Initial research and proof of concept
+   :END:
+   :PROPERTIES:
+   :EFFORT:   16:00
+   :CATEGORY: Development
+   :END:
+
+This shows detailed time tracking with notes after each work session. Total
+logged: 7:15 of estimated 16:00 hours.
+
+* Comprehensive Example with All Metadata Features
+
+** TODO [#A] Implement User Authentication System [2/5]    :backend:security:
+   SCHEDULED: <2024-01-16 Tue> DEADLINE: <2024-01-31 Wed -5d>
+   :PROPERTIES:
+   :CUSTOM_ID: user-auth-implementation
+   :CREATED:  [2024-01-10 Wed 09:00]
+   :ASSIGNED: Alice Johnson
+   :REVIEWER: Bob Smith
+   :EFFORT:   40:00
+   :PROJECT:  UserManagement
+   :PRIORITY: Critical
+   :CATEGORY: Development
+   :SPRINT:   Sprint-24-01
+   :STORY_POINTS: 13
+   :DEPENDS_ON: [[#database-design]], [[#api-framework-setup]]
+   :BLOCKS:   [[#frontend-login-ui]]
+   :VERSION:  v2.0.0
+   :END:
+   :LOGBOOK:
+   CLOCK: [2024-01-15 Mon 09:00]--[2024-01-15 Mon 12:30] =>  3:30
+   CLOCK: [2024-01-14 Sun 13:00]--[2024-01-14 Sun 17:00] =>  4:00
+   CLOCK: [2024-01-13 Sat 10:00]--[2024-01-13 Sat 14:30] =>  4:30
+   - State "TODO"       from ""           [2024-01-10 Wed 09:00]
+   - Note taken on [2024-01-15 Mon 12:30] \\
+     Completed JWT token implementation and refresh token logic
+   - Note taken on [2024-01-14 Sun 17:00] \\
+     Implemented password hashing with bcrypt, added rate limiting
+   - Note taken on [2024-01-13 Sat 14:30] \\
+     Set up basic authentication endpoints and middleware
+   :END:
+   :REFERENCES:
+   - [[https://jwt.io/introduction][JWT Introduction]]
+   - [[https://owasp.org/www-project-top-ten/][OWASP Top 10 Security Risks]]
+   - [[file:~/docs/security-guidelines.org][Company Security Guidelines]]
+   :END:
+
+This is a comprehensive task showing all metadata features working together.
+
+Requirements:
+- [X] Design authentication flow
+- [X] Implement password hashing
+- [ ] Add OAuth2 providers (Google, GitHub)
+- [ ] Implement two-factor authentication
+- [ ] Write comprehensive tests
+
+Current progress: 12:00 logged of 40:00 estimated hours.
+
+* Additional Property Examples
+
+** Geographic Location Properties
+   :PROPERTIES:
+   :LOCATION: San Francisco Office
+   :ADDRESS:  123 Market St, San Francisco, CA 94103
+   :COORDINATES: 37.7749° N, 122.4194° W
+   :TIMEZONE: America/Los_Angeles
+   :END:
+
+** Financial Properties
+   :PROPERTIES:
+   :BUDGET:   $50,000
+   :ACTUAL_COST: $32,450
+   :CURRENCY: USD
+   :COST_CENTER: Engineering
+   :APPROVED_BY: Jane Doe
+   :APPROVAL_DATE: [2024-01-05 Fri]
+   :END:
+
+** Technical Specifications
+   :PROPERTIES:
+   :LANGUAGE: Python 3.11
+   :FRAMEWORK: Django 5.0
+   :DATABASE: PostgreSQL 15
+   :CACHE:    Redis 7.2
+   :DEPLOYMENT: Kubernetes
+   :REPOSITORY: https://github.com/company/project
+   :BRANCH:   feature/user-auth
+   :COMMIT:   a1b2c3d4
+   :BUILD_STATUS: Passing
+   :TEST_COVERAGE: 87%
+   :END:
+
+** Contact Information Properties
+   :PROPERTIES:
+   :NAME:     Alice Johnson
+   :ROLE:     Senior Backend Engineer
+   :EMAIL:    alice.johnson@company.com
+   :PHONE:    +1-555-0123
+   :SLACK:    @alice
+   :GITHUB:   @alicejohnson
+   :LINKEDIN: alice-johnson-dev
+   :MANAGER:  Bob Smith
+   :TEAM:     Platform Engineering
+   :START_DATE: [2022-03-15 Tue]
+   :END:
+
+* Drawer and Property Edge Cases
+
+** Empty Property Drawer
+   :PROPERTIES:
+   :END:
+
+This heading has an empty property drawer.
+
+** Multiple Custom Drawers
+
+*** Research Notes with Multiple Drawers
+    :PROPERTIES:
+    :CUSTOM_ID: research-notes
+    :CATEGORY: Research
+    :END:
+    :ABSTRACT:
+    This section explores the implementation of distributed caching strategies
+    for high-traffic web applications. Focus on Redis cluster configuration
+    and cache invalidation patterns.
+    :END:
+    :METHODOLOGY:
+    1. Literature review of existing solutions
+    2. Performance benchmarking of different approaches
+    3. Prototype implementation
+    4. Load testing and optimization
+    :END:
+    :FINDINGS:
+    - Redis Cluster provides better scalability than single instance
+    - Cache-aside pattern works well for read-heavy workloads
+    - Careful key design prevents hotspots
+    - Monitor cache hit rates and adjust TTLs accordingly
+    :END:
+    :REFERENCES:
+    - [[https://redis.io/docs/manual/scaling/][Redis Scaling Documentation]]
+    - [[https://aws.amazon.com/caching/best-practices/][AWS Caching Best Practices]]
+    :END:
+
+Multiple custom drawers can organize different types of information within
+the same heading.
+
+* Planning with Complex Timestamps
+
+** TODO Project Milestone with Range and Warning
+   SCHEDULED: <2024-01-22 Mon>--<2024-01-26 Fri> DEADLINE: <2024-01-31 Wed -7d>
+
+This milestone spans 5 days and has a deadline with 7-day warning.
+
+** TODO Recurring Meeting with Time
+   SCHEDULED: <2024-01-17 Wed 14:00-15:00 +1w>
+
+Weekly meeting every Wednesday at 2 PM.
+
+** TODO Task Dependent on Date Calculation
+   SCHEDULED: <%%(org-anniversary 2024 1 15)>
+
+This task triggers on the anniversary of January 15, 2024.

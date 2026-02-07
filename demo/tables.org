@@ -1,0 +1,270 @@
+#+TITLE: Org-mode Tables: Structure and Formatting
+#+AUTHOR: Demo Collection
+#+DATE: 2024-01-15
+
+This file demonstrates Org-mode table capabilities including basic tables,
+headers, separators, alignment, formulas, and tables with various content types.
+
+* Basic Table Structure
+
+** Simple Table with Header
+
+| Name          | Age | City          |
+|---------------+-----+---------------|
+| Alice Johnson |  28 | San Francisco |
+| Bob Smith     |  34 | New York      |
+| Carol Davis   |  31 | Chicago       |
+| David Wilson  |  29 | Austin        |
+| Eve Martinez  |  26 | Seattle       |
+
+** Table Without Header Separator
+
+| Product    | Price | Stock |
+| Laptop     |  1299 |    45 |
+| Mouse      |    29 |   150 |
+| Keyboard   |    89 |    78 |
+| Monitor    |   399 |    32 |
+| Webcam     |    79 |    91 |
+
+* Tables with Different Column Types
+
+** Mixed Content Table
+
+| ID  | Item              | Quantity | Price  | In Stock |
+|-----+-------------------+----------+--------+----------|
+| 001 | USB-C Cable       |       50 | $12.99 | Yes      |
+| 002 | Wireless Mouse    |       30 | $34.99 | Yes      |
+| 003 | Laptop Stand      |       15 | $59.99 | No       |
+| 004 | Desk Lamp         |       25 | $44.99 | Yes      |
+| 005 | Phone Holder      |       80 | $18.99 | Yes      |
+
+** Table with Links
+
+| Resource               | URL                                        | Category    |
+|------------------------+--------------------------------------------+-------------|
+| Org-mode Manual        | [[https://orgmode.org/manual/][Official Docs]]              | Documentation |
+| Emacs Wiki             | [[https://www.emacswiki.org][Community Wiki]]            | Community   |
+| GitHub Repository      | [[https://github.com/org-mode/org-mode][Source Code]]     | Development |
+| Stack Overflow         | [[https://stackoverflow.com/questions/tagged/org-mode][Q&A]]  | Support     |
+
+* Column Alignment
+
+** Left-Aligned, Centered, and Right-Aligned
+
+| <l>            | <c>      | <r>      |
+| Left Aligned   | Centered |    Right |
+| Text           | Numbers  |   Values |
+| Short          | Med      | LongText |
+| A              | B        |        C |
+
+** Numeric Data Table (Right-Aligned)
+
+|   | <r>       | <r>    | <r>    | <r>      |
+|---+-----------+--------+--------+----------|
+| # | Revenue   | Costs  | Profit | Margin % |
+|---+-----------+--------+--------+----------|
+| 1 | $125,000  | $75,000| $50,000|    40.0% |
+| 2 | $198,450  | $89,200| $109,250|   55.0% |
+| 3 | $156,780  | $98,450| $58,330|    37.2% |
+| 4 | $203,900  | $112,300| $91,600|  44.9% |
+|---+-----------+--------+--------+----------|
+|   | $684,130  | $374,950| $309,180|  45.2% |
+
+* Tables with Empty Cells
+
+** Sparse Data Table
+
+| Employee      | Q1 Sales | Q2 Sales | Q3 Sales | Q4 Sales |
+|---------------+----------+----------+----------+----------|
+| Alice Johnson |   45,000 |   52,000 |   48,000 |   61,000 |
+| Bob Smith     |   38,000 |          |   41,000 |   39,000 |
+| Carol Davis   |          |   33,000 |   35,000 |   42,000 |
+| David Wilson  |   51,000 |   49,000 |          |   55,000 |
+| Eve Martinez  |   29,000 |   31,000 |   28,000 |          |
+
+** Optional Fields Table
+
+| Name    | Email              | Phone        | Department | Extension |
+|---------+--------------------+--------------+------------+-----------|
+| Alice   | alice@company.com  | 555-0101     | Engineering|      1234 |
+| Bob     | bob@company.com    |              | Sales      |      1235 |
+| Carol   | carol@company.com  | 555-0103     | Marketing  |           |
+| David   |                    | 555-0104     | HR         |      1237 |
+| Eve     | eve@company.com    |              |            |      1238 |
+
+* Complex Multi-Row Headers
+
+** Project Status Dashboard
+
+|              |           | <c>       | <c>       | <c>       |
+| Project      | Manager   | Status    | Progress  | Due Date  |
+|--------------+-----------+-----------+-----------+-----------|
+| *Backend*    |           |           |           |           |
+| API Gateway  | Alice     | Active    | 75%       | 2024-02-15|
+| Database     | Bob       | Active    | 90%       | 2024-02-01|
+| Auth Service | Carol     | Planning  | 25%       | 2024-03-01|
+|--------------+-----------+-----------+-----------+-----------|
+| *Frontend*   |           |           |           |           |
+| Dashboard    | David     | Active    | 60%       | 2024-02-20|
+| Mobile App   | Eve       | Testing   | 95%       | 2024-01-25|
+| Admin Panel  | Alice     | Planning  | 15%       | 2024-03-15|
+|--------------+-----------+-----------+-----------+-----------|
+| *DevOps*     |           |           |           |           |
+| CI/CD        | Bob       | Complete  | 100%      | 2024-01-10|
+| Monitoring   | Carol     | Active    | 80%       | 2024-02-05|
+
+* Tables with Formulas
+
+** Basic Calculations Table
+
+| Item          | Quantity | Unit Price | Total   |
+|---------------+----------+------------+---------|
+| Notebooks     |       10 |       2.50 |   25.00 |
+| Pens          |       24 |       1.25 |   30.00 |
+| Folders       |        8 |       3.75 |   30.00 |
+| Staplers      |        3 |      12.99 |   38.97 |
+| Paper (ream)  |        5 |       8.50 |   42.50 |
+|---------------+----------+------------+---------|
+| *Total*       |       50 |            |  166.47 |
+#+TBLFM: $4=$2*$3::@7$2=vsum(@2..@6)::@7$4=vsum(@2..@6)
+
+** Sales Performance Table
+
+| Salesperson   | Jan   | Feb   | Mar   | Q1 Total | Avg   |
+|---------------+-------+-------+-------+----------+-------|
+| Alice Johnson | 15000 | 18000 | 21000 |    54000 | 18000 |
+| Bob Smith     | 12000 | 13500 | 14200 |    39700 | 13233 |
+| Carol Davis   | 19000 | 17500 | 22000 |    58500 | 19500 |
+| David Wilson  | 14500 | 16000 | 15800 |    46300 | 15433 |
+|---------------+-------+-------+-------+----------+-------|
+| Total         | 60500 | 65000 | 73000 |   198500 | 66167 |
+#+TBLFM: $5=vsum($2..$4)::$6=vmean($2..$4)::@6$2=vsum(@2..@5)::@6$3=vsum(@2..@5)::@6$4=vsum(@2..@5)::@6$5=vsum(@2..@5)::@6$6=vmean(@2..@5)
+
+** Grade Calculation Table
+
+| Student       | Homework | Midterm | Final | Average | Grade |
+|---------------+----------+---------+-------+---------+-------|
+| Alice Johnson |       92 |      88 |    95 |    91.7 | A     |
+| Bob Smith     |       85 |      82 |    87 |    84.7 | B     |
+| Carol Davis   |       78 |      75 |    80 |    77.7 | C+    |
+| David Wilson  |       95 |      91 |    93 |    93.0 | A     |
+| Eve Martinez  |       88 |      85 |    89 |    87.3 | B+    |
+|---------------+----------+---------+-------+---------+-------|
+| Class Average |     87.6 |    84.2 |  88.8 |    86.9 |       |
+#+TBLFM: $5=vmean($2..$4);%.1f::@7$2=vmean(@2..@6);%.1f::@7$3=vmean(@2..@6);%.1f::@7$4=vmean(@2..@6);%.1f::@7$5=vmean(@2..@6);%.1f
+
+* Wide Tables
+
+** System Configuration Matrix
+
+| Server    | CPU Cores | RAM (GB) | Storage (TB) | OS           | Status    | IP Address    | Location    |
+|-----------+-----------+----------+--------------+--------------+-----------+---------------|-------------|
+| web-01    |        16 |       64 |          2.0 | Ubuntu 22.04 | Running   | 10.0.1.10     | US-East     |
+| web-02    |        16 |       64 |          2.0 | Ubuntu 22.04 | Running   | 10.0.1.11     | US-East     |
+| db-01     |        32 |      128 |         10.0 | Ubuntu 22.04 | Running   | 10.0.2.10     | US-East     |
+| db-02     |        32 |      128 |         10.0 | Ubuntu 22.04 | Running   | 10.0.2.11     | US-West     |
+| cache-01  |         8 |       32 |          1.0 | Ubuntu 22.04 | Running   | 10.0.3.10     | US-East     |
+| worker-01 |        24 |       96 |          5.0 | Ubuntu 22.04 | Running   | 10.0.4.10     | EU-West     |
+| worker-02 |        24 |       96 |          5.0 | Ubuntu 22.04 | Stopped   | 10.0.4.11     | EU-West     |
+| monitor   |         4 |       16 |          0.5 | Ubuntu 22.04 | Running   | 10.0.5.10     | US-East     |
+
+* Tall Tables
+
+** Monthly Expense Tracking
+
+| Date       | Category      | Description              | Amount  |
+|------------+---------------+--------------------------+---------|
+| 2024-01-03 | Food          | Grocery shopping         |  156.43 |
+| 2024-01-05 | Transportation| Gas                      |   52.00 |
+| 2024-01-07 | Utilities     | Electricity bill         |  124.56 |
+| 2024-01-10 | Food          | Restaurant dinner        |   78.90 |
+| 2024-01-12 | Entertainment | Movie tickets            |   32.00 |
+| 2024-01-15 | Food          | Grocery shopping         |  143.67 |
+| 2024-01-17 | Healthcare    | Pharmacy                 |   45.32 |
+| 2024-01-19 | Transportation| Public transit pass      |   95.00 |
+| 2024-01-22 | Food          | Coffee shop              |   18.50 |
+| 2024-01-24 | Utilities     | Internet bill            |   79.99 |
+| 2024-01-26 | Food          | Grocery shopping         |  167.89 |
+| 2024-01-28 | Entertainment | Concert tickets          |  145.00 |
+| 2024-01-30 | Food          | Restaurant lunch         |   42.50 |
+|------------+---------------+--------------------------+---------|
+| Total      |               |                          | 1181.76 |
+
+* Special Table Formatting
+
+** Table with Code and Verbatim
+
+| Function Name  | Syntax                    | Returns | Description          |
+|----------------+---------------------------+---------+----------------------|
+| =len()=        | ~len(sequence)~           | int     | Length of sequence   |
+| =sum()=        | ~sum(iterable)~           | number  | Sum of items         |
+| =max()=        | ~max(iterable)~           | any     | Maximum value        |
+| =min()=        | ~min(iterable)~           | any     | Minimum value        |
+| =sorted()=     | ~sorted(iterable)~        | list    | Sorted list          |
+
+** Table with Checkboxes
+
+| Task                      | Assigned To | Priority | Status |
+|---------------------------+-------------+----------+--------|
+| [X] Design database schema| Alice       | High     | Done   |
+| [X] Setup CI/CD pipeline  | Bob         | High     | Done   |
+| [ ] Implement user auth   | Carol       | High     | In Progress |
+| [ ] Create API endpoints  | David       | Medium   | Pending |
+| [ ] Write documentation   | Eve         | Low      | Pending |
+
+* Nested Table Elements
+
+** Table with Inline Formatting
+
+| Status      | Description                                    | Impact      |
+|-------------+------------------------------------------------+-------------|
+| *Critical*  | /Production server down/, needs *immediate* fix| Very High   |
+| *High*      | Performance degradation in ~database queries~  | High        |
+| *Medium*    | UI bug in =settings panel=                     | Medium      |
+| *Low*       | Documentation +outdated+ needs update          | Low         |
+
+** Table with Mathematical Expressions
+
+| Formula               | LaTeX                  | Result |
+|-----------------------+------------------------+--------|
+| Area of circle        | A = \pi r^{2}          | Calculated |
+| Quadratic formula     | x = \frac{-b \pm \sqrt{b^2-4ac}}{2a} | Solved |
+| Pythagorean theorem   | a^{2} + b^{2} = c^{2}  | Proven |
+| Einstein equation     | E = mc^{2}             | Famous |
+
+* Table Layout Examples
+
+** Horizontal Separator Styles
+
+| Section A |
+|-----------|
+| Data 1    |
+| Data 2    |
+|-----------|
+| Section B |
+|-----------|
+| Data 3    |
+| Data 4    |
+|-----------|
+
+** Minimal Table
+
+| A | B |
+| 1 | 2 |
+| 3 | 4 |
+
+** Single Column Table
+
+| Priority Tasks       |
+|----------------------|
+| Review pull requests |
+| Update dependencies  |
+| Fix critical bugs    |
+| Deploy to production |
+| Write release notes  |
+
+** Single Row Table
+
+| Name | Age | City | Country | Email | Phone |
+|------+-----+------+---------+-------+-------|
+| John |  30 | NYC  | USA     | john@example.com | 555-0100 |

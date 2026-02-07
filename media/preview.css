@@ -1,0 +1,435 @@
+/* Org Preview Styles — Theme-aware using VS Code CSS variables */
+
+body {
+  font-family: var(--vscode-editor-fontFamily, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  font-size: var(--vscode-editor-fontSize, 14px);
+  color: var(--vscode-editor-foreground);
+  background-color: var(--vscode-editor-background);
+  line-height: 1.6;
+  padding: 16px 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* ═══════════════════════════════════════
+   Headings — colored by level
+   ═══════════════════════════════════════ */
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 1.4em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+h1 {
+  font-size: 2em;
+  color: #4fc1ff;
+  border-bottom: 1px solid var(--vscode-panel-border, #444);
+  padding-bottom: 0.3em;
+}
+h2 {
+  font-size: 1.5em;
+  color: #c586c0;
+  border-bottom: 1px solid var(--vscode-panel-border, #444);
+  padding-bottom: 0.3em;
+}
+h3 { font-size: 1.25em; color: #dcdcaa; }
+h4 { font-size: 1.1em; color: #9cdcfe; }
+h5 { font-size: 1em; color: #ce9178; }
+h6 { font-size: 0.95em; color: #6a9955; }
+
+/* ═══════════════════════════════════════
+   Paragraphs
+   ═══════════════════════════════════════ */
+p {
+  margin: 0.8em 0;
+}
+
+/* ═══════════════════════════════════════
+   Links
+   ═══════════════════════════════════════ */
+a {
+  color: var(--vscode-textLink-foreground, #3794ff);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+  color: var(--vscode-textLink-activeForeground, #3794ff);
+}
+
+/* ═══════════════════════════════════════
+   Lists
+   ═══════════════════════════════════════ */
+ul, ol {
+  padding-left: 2em;
+  margin: 0.5em 0;
+}
+
+li {
+  margin: 0.25em 0;
+}
+
+/* Description lists */
+dt {
+  font-weight: 600;
+  margin-top: 0.5em;
+  color: #9cdcfe;
+}
+
+dd {
+  margin-left: 2em;
+  margin-bottom: 0.5em;
+}
+
+/* ═══════════════════════════════════════
+   Inline code & verbatim
+   ═══════════════════════════════════════ */
+code {
+  font-family: var(--vscode-editor-fontFamily, "Fira Code", "Consolas", "Courier New", monospace);
+  font-size: 0.9em;
+  background-color: var(--vscode-textCodeBlock-background, rgba(128, 128, 128, 0.15));
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+}
+
+.inline-code {
+  color: #ce9178;
+}
+
+.inline-verbatim {
+  color: #d4d4d4;
+}
+
+/* ═══════════════════════════════════════
+   Code blocks — with syntax highlighting
+   ═══════════════════════════════════════ */
+pre {
+  background-color: var(--vscode-textCodeBlock-background, rgba(128, 128, 128, 0.1));
+  border: 1px solid var(--vscode-panel-border, #333);
+  border-radius: 4px;
+  padding: 12px 16px;
+  overflow-x: auto;
+  margin: 0.8em 0;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.875em;
+  color: #d4d4d4;
+}
+
+/* Source block with language label */
+.src-block {
+  position: relative;
+}
+
+.src-block::before {
+  content: attr(data-language);
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 2px 8px;
+  font-size: 0.7em;
+  color: var(--vscode-descriptionForeground, #888);
+  background-color: rgba(128, 128, 128, 0.1);
+  border-bottom-left-radius: 4px;
+  text-transform: uppercase;
+}
+
+/* Language-specific code colors */
+code[class*="language-python"] { color: #4ec9b0; }
+code[class*="language-javascript"],
+code[class*="language-typescript"] { color: #dcdcaa; }
+code[class*="language-rust"] { color: #ce9178; }
+code[class*="language-go"] { color: #9cdcfe; }
+code[class*="language-c"] { color: #569cd6; }
+code[class*="language-sql"] { color: #c586c0; }
+code[class*="language-html"] { color: #d69d85; }
+code[class*="language-bash"] { color: #6a9955; }
+code[class*="language-json"],
+code[class*="language-yaml"] { color: #ce9178; }
+code[class*="language-emacs-lisp"] { color: #b5cea8; }
+
+/* ═══════════════════════════════════════
+   Example blocks — must preserve whitespace
+   ═══════════════════════════════════════ */
+.example {
+  white-space: pre;
+  font-family: var(--vscode-editor-fontFamily, "Fira Code", "Consolas", "Courier New", monospace);
+  font-size: 0.875em;
+  background-color: var(--vscode-textCodeBlock-background, rgba(128, 128, 128, 0.08));
+  border: 1px solid var(--vscode-panel-border, #333);
+  border-left: 3px solid #6a9955;
+  border-radius: 4px;
+  padding: 12px 16px;
+  overflow-x: auto;
+  margin: 0.8em 0;
+  color: #d4d4d4;
+}
+
+/* Fixed-width regions */
+.fixed-width {
+  border-left: 3px solid var(--vscode-panel-border, #555);
+}
+
+/* ═══════════════════════════════════════
+   Blockquotes
+   ═══════════════════════════════════════ */
+blockquote {
+  border-left: 4px solid #c586c0;
+  background-color: var(--vscode-textBlockQuote-background, rgba(128, 128, 128, 0.05));
+  margin: 0.8em 0;
+  padding: 0.5em 1em;
+  color: var(--vscode-descriptionForeground, #bbb);
+}
+
+blockquote p {
+  margin: 0.3em 0;
+}
+
+/* ═══════════════════════════════════════
+   Tables
+   ═══════════════════════════════════════ */
+table {
+  border-collapse: collapse;
+  width: auto;
+  margin: 0.8em 0;
+}
+
+th, td {
+  border: 1px solid var(--vscode-panel-border, #444);
+  padding: 6px 12px;
+  text-align: left;
+}
+
+th {
+  background-color: rgba(79, 193, 255, 0.1);
+  font-weight: 600;
+  color: #4fc1ff;
+}
+
+tr:nth-child(even) {
+  background-color: rgba(128, 128, 128, 0.04);
+}
+
+/* ═══════════════════════════════════════
+   Horizontal rule
+   ═══════════════════════════════════════ */
+hr {
+  border: none;
+  border-top: 1px solid var(--vscode-panel-border, #444);
+  margin: 1.5em 0;
+}
+
+/* ═══════════════════════════════════════
+   Images
+   ═══════════════════════════════════════ */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ═══════════════════════════════════════
+   TODO / DONE keywords
+   ═══════════════════════════════════════ */
+.todo-keyword.TODO {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 0.8em;
+  color: #f44747;
+  background-color: rgba(244, 71, 71, 0.1);
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin-right: 0.4em;
+  vertical-align: middle;
+}
+
+.todo-keyword.DONE {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 0.8em;
+  color: #73c991;
+  background-color: rgba(115, 201, 145, 0.1);
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin-right: 0.4em;
+  vertical-align: middle;
+}
+
+/* ═══════════════════════════════════════
+   Tags
+   ═══════════════════════════════════════ */
+.tags {
+  float: right;
+  font-size: 0.75em;
+  font-weight: 400;
+}
+
+.tag {
+  display: inline-block;
+  color: #569cd6;
+  background-color: rgba(86, 156, 214, 0.1);
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin-left: 4px;
+}
+
+/* ═══════════════════════════════════════
+   Timestamps
+   ═══════════════════════════════════════ */
+.timestamp {
+  font-family: var(--vscode-editor-fontFamily, monospace);
+  font-size: 0.85em;
+  color: #dcdcaa;
+  background-color: rgba(220, 220, 170, 0.08);
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+/* ═══════════════════════════════════════
+   Priority cookies
+   ═══════════════════════════════════════ */
+.priority {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 0.8em;
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin-right: 0.3em;
+  vertical-align: middle;
+}
+
+.priority-A {
+  color: #f44747;
+  background-color: rgba(244, 71, 71, 0.1);
+}
+.priority-B {
+  color: #cca700;
+  background-color: rgba(204, 167, 0, 0.1);
+}
+.priority-C {
+  color: #73c991;
+  background-color: rgba(115, 201, 145, 0.1);
+}
+
+/* ═══════════════════════════════════════
+   Statistics cookies
+   ═══════════════════════════════════════ */
+.statistics-cookie {
+  font-size: 0.8em;
+  font-weight: 600;
+  color: #dcdcaa;
+  background-color: rgba(220, 220, 170, 0.1);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+/* ═══════════════════════════════════════
+   Math — inline and display
+   ═══════════════════════════════════════ */
+.math {
+  font-family: "Computer Modern", "Latin Modern Math", "STIX Two Math", serif;
+}
+
+.math-inline {
+  font-style: italic;
+  padding: 0 2px;
+}
+
+.math-display {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+  padding: 0.5em;
+  font-size: 1.1em;
+  overflow-x: auto;
+}
+
+/* ═══════════════════════════════════════
+   Center block
+   ═══════════════════════════════════════ */
+.center {
+  text-align: center;
+}
+
+/* ═══════════════════════════════════════
+   Verse block
+   ═══════════════════════════════════════ */
+.verse {
+  white-space: pre-wrap;
+  font-style: italic;
+  border-left: 3px solid #c586c0;
+  padding-left: 1em;
+  margin: 0.8em 0;
+}
+
+/* ═══════════════════════════════════════
+   Footnotes
+   ═══════════════════════════════════════ */
+.footref {
+  font-size: 0.75em;
+  vertical-align: super;
+  line-height: 0;
+  color: var(--vscode-textLink-foreground, #3794ff);
+  cursor: pointer;
+}
+
+.footnote-definition {
+  font-size: 0.9em;
+  margin-top: 0.5em;
+  padding-left: 2em;
+  position: relative;
+  color: var(--vscode-descriptionForeground, #999);
+}
+
+.footnum {
+  position: absolute;
+  left: 0;
+  font-size: 0.8em;
+  font-weight: 600;
+  color: var(--vscode-textLink-foreground, #3794ff);
+}
+
+.footdef p {
+  margin: 0.2em 0;
+}
+
+/* ═══════════════════════════════════════
+   Underline, strikethrough
+   ═══════════════════════════════════════ */
+.underline {
+  text-decoration: underline;
+  text-decoration-color: rgba(128, 128, 128, 0.5);
+  text-underline-offset: 2px;
+}
+
+del {
+  color: var(--vscode-descriptionForeground, #888);
+  text-decoration: line-through;
+}
+
+/* ═══════════════════════════════════════
+   Org error message (parser fallback)
+   ═══════════════════════════════════════ */
+.org-error {
+  background-color: rgba(244, 71, 71, 0.1);
+  border: 1px solid #f44747;
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin: 1em 0;
+}
+
+.org-error h3 {
+  color: #f44747;
+  margin-top: 0;
+}
+
+.org-error pre {
+  background: none;
+  border: none;
+  color: #f44747;
+  padding: 0;
+  margin: 0;
+}

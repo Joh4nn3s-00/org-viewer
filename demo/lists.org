@@ -1,0 +1,325 @@
+#+TITLE: Org-mode Lists: All Types and Nesting
+#+AUTHOR: Demo Collection
+#+DATE: 2024-01-15
+
+This file demonstrates all list types in Org-mode: unordered lists with
+different bullet styles, ordered lists with different numbering formats,
+description lists, checkbox lists, and complex nested combinations.
+
+* Unordered Lists with Different Bullets
+
+** Using Dash (-) Bullets
+
+- First item in the list
+- Second item with more details
+- Third item
+  - Nested item under third
+  - Another nested item
+- Fourth item back at top level
+
+** Using Plus (+) Bullets
+
++ Alternative bullet style with plus
++ Second item
++ Third item
+  + Nested with plus
+  + Another nested item
+    + Even deeper nesting
++ Back to top level
+
+** Using Asterisk (*) Bullets
+
+Note: Single asterisk lists must have space after the asterisk to distinguish
+from headings.
+
+- First item (dash)
+  * Nested with asterisk
+  * Another asterisk item
+    - Even deeper with dash
+    - More deep items
+  * Back to asterisk level
+- Back to dash level
+
+* Ordered Lists with Numbering
+
+** Numeric Lists with Period (1. 2. 3.)
+
+1. First ordered item
+2. Second ordered item
+3. Third ordered item
+   1. Nested numbered item
+   2. Another nested item
+   3. Third nested item
+4. Back to main sequence
+5. Fifth item continues sequence
+
+** Numeric Lists with Parenthesis (1) 2) 3))
+
+1) Alternative numbering format
+2) Second item
+3) Third item
+   1) Nested item
+   2) Another nested
+4) Fourth item
+5) Fifth item
+
+** Mixed Numbering Levels
+
+1. Top level item one
+   a. Sub-item lowercase letter
+   b. Sub-item b
+      1) Nested number with paren
+      2) Nested item two
+   c. Sub-item c
+2. Top level item two
+3. Top level item three
+
+* Description Lists (Term :: Definition)
+
+** Software Tools
+
+- Git :: Distributed version control system for tracking changes in source code
+- Docker :: Platform for developing, shipping, and running applications in containers
+- Kubernetes :: Open-source system for automating deployment, scaling, and management of containerized applications
+- Terraform :: Infrastructure as code tool for building, changing, and versioning infrastructure
+- Jenkins :: Open-source automation server for building, testing, and deploying software
+
+** Programming Concepts
+
+- Polymorphism :: Ability of different objects to respond to the same message in different ways
+- Encapsulation :: Bundling of data and methods that operate on that data within a single unit
+- Inheritance :: Mechanism where a new class derives properties and behaviors from an existing class
+- Abstraction :: Process of hiding complex implementation details and showing only essential features
+
+** Nested Description Lists
+
+- Backend Technologies :: Server-side technologies and frameworks
+  - Node.js :: JavaScript runtime built on Chrome's V8 engine
+  - Python Django :: High-level Python web framework
+  - Ruby on Rails :: Server-side web application framework
+- Frontend Technologies :: Client-side technologies
+  - React :: JavaScript library for building user interfaces
+  - Vue.js :: Progressive JavaScript framework
+  - Angular :: Platform for building web applications
+
+* Checkbox Lists (Task Lists)
+
+** Project Checklist [3/8]
+
+- [X] Define project scope and requirements
+- [X] Create initial design mockups
+- [X] Set up development environment
+- [ ] Implement core functionality
+- [ ] Write unit tests
+- [ ] Conduct user acceptance testing
+- [ ] Deploy to production
+- [ ] Create user documentation
+
+** Development Workflow [-]
+
+- [X] Planning phase complete
+- [-] Development in progress
+  - [X] Database schema designed
+  - [X] API endpoints defined
+  - [ ] Frontend components
+  - [ ] Integration testing
+- [ ] Deployment pending
+
+** Feature Toggles
+
+- [ ] Enable dark mode
+- [X] Enable notifications
+- [ ] Enable experimental features
+- [X] Enable analytics
+- [-] Beta features (partial)
+  - [X] New dashboard
+  - [ ] Advanced search
+  - [ ] Custom themes
+
+* Deeply Nested Lists
+
+** Four-Level Nesting Example
+
+1. Top level: Project phases
+   - Second level: Phase 1 - Planning
+     1. Third level: Requirements gathering
+        - Fourth level: Stakeholder interviews
+        - Fourth level: Market research
+        - Fourth level: Competitive analysis
+     2. Third level: Project charter
+        - Fourth level: Scope definition
+        - Fourth level: Timeline creation
+     3. Third level: Resource allocation
+   - Second level: Phase 2 - Design
+     1. Third level: Architecture design
+     2. Third level: UI/UX design
+     3. Third level: Database design
+   - Second level: Phase 3 - Implementation
+2. Top level: Risk management
+3. Top level: Quality assurance
+
+** Complex Nesting with Mixed Types
+
+- Project Alpha
+  1. Milestone 1: Foundation
+     - Task: Setup infrastructure
+       * Subtask: Configure servers
+       * Subtask: Setup databases
+         - Detail: PostgreSQL cluster
+         - Detail: Redis cache
+       * Subtask: Deploy monitoring
+     - Task: Team onboarding
+  2. Milestone 2: Development
+     - Task: Core features
+       * User authentication
+       * Data processing
+       * Reporting module
+  3. Milestone 3: Launch
+- Project Beta
+  1. Research phase
+  2. Prototype phase
+  3. Production phase
+
+* Mixed List Types in Combination
+
+** Shopping and Task List Hybrid
+
+Shopping List:
+- [ ] Groceries
+  - Produce :: Fresh fruits and vegetables
+    * [ ] Apples (2 lbs)
+    * [ ] Bananas (1 bunch)
+    * [ ] Carrots (1 bag)
+  - Dairy :: Refrigerated items
+    * [X] Milk (1 gallon)
+    * [ ] Cheese (cheddar, 8 oz)
+    * [ ] Yogurt (6 pack)
+  - Pantry :: Non-perishable items
+    1) [ ] Rice (5 lb bag)
+    2) [X] Pasta (2 boxes)
+    3) [ ] Canned tomatoes (3 cans)
+- [X] Hardware store
+  - Tools :: Required tools
+    1. [X] Screwdriver set
+    2. [ ] Hammer
+  - Materials :: Project materials
+    1. [ ] Wood screws (1 box)
+    2. [ ] Sandpaper (assorted grits)
+
+** Meeting Notes with Action Items
+
+Agenda:
+1. Review previous action items [2/3]
+   - [X] Complete budget analysis (John)
+   - [X] Update project timeline (Sarah)
+   - [ ] Finalize vendor contracts (Mike)
+2. Discuss Q1 objectives
+   - Objective 1 :: Increase revenue by 15%
+     * Strategy: Expand marketing efforts
+     * Strategy: Launch new product line
+     * Strategy: Optimize pricing
+   - Objective 2 :: Improve customer satisfaction
+     * [ ] Implement new support system
+     * [ ] Conduct customer surveys
+     * [X] Train support team
+3. New business
+   - [ ] Review partnership proposal
+   - [ ] Plan team building event
+
+** Recipe with Nested Instructions
+
+Chocolate Chip Cookies:
+
+Ingredients:
+- Dry ingredients :: Mix together in large bowl
+  * 2 1/4 cups all-purpose flour
+  * 1 tsp baking soda
+  * 1 tsp salt
+- Wet ingredients :: Beat until creamy
+  * 1 cup butter (softened)
+  * 3/4 cup granulated sugar
+  * 3/4 cup packed brown sugar
+  * 2 large eggs
+  * 2 tsp vanilla extract
+- Mix-ins :: Fold into batter
+  * 2 cups chocolate chips
+  * 1 cup chopped walnuts (optional)
+
+Instructions:
+1. [ ] Preheat oven to 375°F (190°C)
+2. [ ] Prepare dry ingredients
+   - [ ] Combine flour, baking soda, salt
+   - [ ] Set aside
+3. [ ] Prepare wet ingredients
+   - [ ] Cream butter and sugars
+   - [ ] Add eggs one at a time
+   - [ ] Mix in vanilla
+4. [ ] Combine and bake
+   - [ ] Gradually blend dry into wet
+   - [ ] Stir in chocolate chips
+   - [ ] Drop rounded tablespoons onto baking sheet
+   - [ ] Bake 9-11 minutes
+5. [ ] Cool and serve
+
+* List Continuation and Breaking
+
+Sometimes you need to continue a list after interrupting with other content:
+
+1. First item in sequence
+2. Second item
+
+This is an interrupting paragraph that breaks the list. To continue the
+numbering, you need to explicitly specify the number.
+
+3. Third item continuing sequence
+4. Fourth item
+
+Alternative approach using [@N] syntax:
+
+1. First numbered item
+2. Second numbered item
+
+Another interruption here.
+
+3. [@3] Explicitly numbered third item
+4. [@4] Explicitly numbered fourth item
+
+* Edge Cases and Special Scenarios
+
+** Empty List Items
+
+- First item
+-
+- Third item (second was empty)
+- Fourth item
+
+** List Items with Multiple Paragraphs
+
+- This is the first list item.
+
+  This is a second paragraph within the same list item. It maintains the
+  indentation to stay part of the same item.
+
+- This is the second list item.
+
+  It also has a continuation paragraph.
+
+  And even a third paragraph, all part of the same item.
+
+- Third item is simple.
+
+** Lists with Code Blocks
+
+1. Install dependencies:
+
+   #+BEGIN_SRC bash
+   npm install
+   #+END_SRC
+
+2. Run the application:
+
+   #+BEGIN_SRC bash
+   npm start
+   #+END_SRC
+
+3. Verify it's working by visiting http://localhost:3000

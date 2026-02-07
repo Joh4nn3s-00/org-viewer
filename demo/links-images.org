@@ -1,0 +1,282 @@
+#+TITLE: Org-mode Links, Images, and Footnotes
+#+AUTHOR: Demo Collection
+#+DATE: 2024-01-15
+
+This file demonstrates all types of links in Org-mode: external URLs, internal
+links, file links, custom ID links, image links, and footnotes with various
+formats.
+
+* External URL Links
+
+** Bracket Links with Descriptions
+
+Standard web links use bracket notation for clean display:
+
+- [[https://orgmode.org][Official Org-mode Website]]
+- [[https://www.gnu.org/software/emacs/][GNU Emacs Homepage]]
+- [[https://github.com][GitHub - Code Hosting Platform]]
+- [[https://stackoverflow.com/questions/tagged/org-mode][Org-mode Questions on Stack Overflow]]
+
+Documentation resources:
+- [[https://orgmode.org/manual/][The Org Manual (Latest Version)]]
+- [[https://orgmode.org/worg/][Worg: Community-Driven Documentation]]
+- [[https://orgmode.org/guide/][Compact Org-mode Guide for Beginners]]
+
+** Plain URL Links (Auto-Linked)
+
+URLs without brackets are auto-linked when recognized:
+
+Visit https://orgmode.org for complete documentation.
+
+Common URLs:
+- https://www.wikipedia.org
+- https://news.ycombinator.com
+- https://reddit.com/r/orgmode
+- http://example.com (HTTP is also supported)
+- https://api.github.com/repos/org-mode/org-mode
+
+** Angle Bracket Links
+
+Explicit linking using angle brackets:
+
+<https://www.google.com>
+<https://www.example.com>
+<https://tools.ietf.org/html/rfc2616>
+
+** Email Links
+
+Contact links using mailto:
+
+- [[mailto:user@example.com][Send Email to User]]
+- [[mailto:support@company.com?subject=Bug%20Report][Report a Bug]]
+- Plain email: mailto:info@example.org
+- Angle bracket: <mailto:contact@example.com>
+
+* Internal Links (Within Document)
+
+** Links to Headings
+
+Link to headings by their exact title:
+
+- [[*External URL Links][Jump to URL Links Section]]
+- [[*File Links and Paths][See File Links Below]]
+- [[*Footnote Demonstrations][Go to Footnotes Section]]
+- [[*Image Links][View Image Examples]]
+
+You can also link to nested headings:
+
+- [[*Bracket Links with Descriptions][Links with Descriptions Subsection]]
+- [[*Reference Style Footnotes][Reference Footnotes]]
+
+** Links to Custom IDs
+   :PROPERTIES:
+   :CUSTOM_ID: custom-id-section
+   :END:
+
+This section has a custom ID defined in its properties drawer.
+
+Links using custom IDs are more stable than heading-based links:
+
+- [[#custom-id-section][Link to This Section via Custom ID]]
+- [[#important-note][Link to Important Note Below]]
+- [[#example-code][Link to Code Example]]
+
+** Target Definitions and Links
+
+You can define explicit targets in your document:
+
+This paragraph contains a <<target-location>> that can be linked to.
+
+Another paragraph with a <<named-target>> for demonstration.
+
+Links to targets:
+- [[target-location][Link to First Target]]
+- [[named-target][Link to Named Target]]
+
+** Radio Targets
+
+A <<<radio target>>> is automatically linked wherever it appears.
+
+Now when you mention "radio target" elsewhere in the document, it becomes
+a link automatically (in some Org-mode implementations).
+
+* File Links and Paths
+
+** Links to Local Files
+
+Basic file links:
+
+- [[file:basics.org][Open Basics Demo File]]
+- [[file:lists.org][Open Lists Demo File]]
+- [[file:./tables.org][Table Examples (Relative Path)]]
+- [[file:~/Documents/notes.org][Notes in Home Directory]]
+
+** Links to Specific Lines or Headings in Files
+
+- [[file:basics.org::*Text Formatting Showcase][Specific Section in Basics File]]
+- [[file:lists.org::42][Line 42 in Lists File]]
+- [[file:code-blocks.org::#example-code][Custom ID in Another File]]
+
+** Links to Files with Search Options
+
+- [[file:metadata.org::/DEADLINE/][Search for DEADLINE in Metadata File]]
+- [[file:basics.org::TODO][First TODO in Basics File]]
+
+** Directory Links
+
+- [[file:/Users/mac/Desktop/strideshift2026/org_viewer/demo/][Demo Directory]]
+- [[file:~/Desktop/][Desktop Folder]]
+- [[file:./][Current Directory]]
+
+* Image Links
+
+** Basic Image Syntax
+
+Images use the same link syntax but point to image files:
+
+[[file:media/logo.png]]
+
+** Images with Descriptions
+
+[[file:media/screenshot.png][Application Screenshot]]
+
+** Images with Attributes
+
+You can specify image attributes using #+ATTR directives:
+
+#+ATTR_HTML: :width 500px :alt "Architecture Diagram"
+[[file:media/architecture.png]]
+
+#+ATTR_HTML: :width 300px :height 200px :class "centered-image"
+[[file:media/chart.png][Performance Chart]]
+
+** External Image URLs
+
+[[https://orgmode.org/img/org-mode-unicorn-logo.png][Org-mode Logo]]
+
+[[https://via.placeholder.com/600x400.png?text=Example+Image][Placeholder Image Example]]
+
+** Multiple Images in Sequence
+
+Project screenshots:
+
+[[file:media/home-screen.png][Home Screen]]
+
+[[file:media/dashboard.png][Dashboard View]]
+
+[[file:media/settings.png][Settings Panel]]
+
+* Footnote Demonstrations
+
+** Inline Text with Footnote References
+
+Org-mode is a powerful plain-text markup language[fn:1] created for GNU Emacs.
+It supports complex document structures[fn:2], task management, and literate
+programming[fn:literate].
+
+The syntax is designed to be human-readable[fn:3] while providing extensive
+functionality for technical writing and project planning.
+
+** Reference Style Footnotes
+
+Academic writing often requires citations[fn:citation] and references to
+external sources[fn:source]. Org-mode handles this elegantly with named
+footnotes that can be defined anywhere in the document[fn:placement].
+
+** Inline Footnotes
+
+You can also define footnotes inline[fn:: This footnote is defined right where
+it's referenced, without needing a separate definition section.] which is
+convenient for short notes.
+
+Another inline example[fn:: Inline footnotes can span multiple lines and
+include formatting like *bold* and /italic/ text.] shows multi-line content.
+
+Complex inline footnote[fn:: You can even include lists in inline footnotes:
+- Item one
+- Item two
+- Item three
+Though this is rarely needed.] with a list.
+
+** Multiple References to Same Footnote
+
+The same footnote can be referenced multiple times[fn:repeated]. This is useful
+when the same source[fn:repeated] needs to be cited in different locations.
+
+** Named vs Numbered Footnotes
+
+Named footnotes[fn:named-example] use descriptive labels, while numbered
+ones[fn:4] use simple numbers. Both work identically.
+
+** Footnotes with URLs and Links
+
+External references often need URLs[fn:url-example] or links to other
+documents[fn:doc-link].
+
+** Important Note Section
+   :PROPERTIES:
+   :CUSTOM_ID: important-note
+   :END:
+
+This section demonstrates custom IDs for stable linking. Custom IDs don't
+change if you rename the heading, making them ideal for permanent links.
+
+* Link Protocol Examples
+
+** Special Protocols
+
+Beyond HTTP/HTTPS, Org-mode supports various protocols:
+
+- [[info:org#Hyperlinks][Info Page Links]]
+- [[shell:ls -la][Shell Command Links (use with caution)]]
+- [[elisp:(message "Hello from Emacs Lisp")][Elisp Code Links]]
+- [[doi:10.1000/xyz123][DOI Academic Paper Link]]
+
+** ID Links
+
+Links using globally unique IDs:
+
+- [[id:12345678-1234-1234-1234-123456789abc][Link to Item by UUID]]
+
+* Footnote Definitions
+
+Below are the footnote definitions referenced throughout this document:
+
+[fn:1] Org-mode was created by Carsten Dominik in 2003 and has since become
+one of the most popular markup languages for technical writing and personal
+knowledge management.
+
+[fn:2] Complex structures include hierarchical headings, nested lists, tables,
+source code blocks, mathematical equations, and embedded images.
+
+[fn:literate] Literate programming, introduced by Donald Knuth, combines
+source code with detailed explanations in natural language. Org-mode supports
+this through its code block execution and tangling features.
+
+[fn:3] Human readability means the raw Org-mode file is easy to read and edit
+in any text editor, not requiring special software to understand the basic
+structure and content.
+
+[fn:citation] Smith, J. (2024). "Effective Technical Writing with Org-mode."
+Journal of Documentation Systems, 15(3), 234-256.
+
+[fn:source] Official Org-mode documentation: https://orgmode.org/manual/
+
+[fn:placement] Footnote definitions can appear anywhere in the document, though
+by convention they are often placed at the end of sections or at the document
+end.
+
+[fn:repeated] This footnote is referenced multiple times to demonstrate that
+capability. The same definition serves all references.
+
+[fn:named-example] Named footnotes use descriptive labels like "named-example"
+instead of numbers, making them easier to manage in large documents.
+
+[fn:4] Numbered footnotes are simpler but can become difficult to manage if you
+insert new footnotes in the middle of a document.
+
+[fn:url-example] For more information, see the official specification at
+https://orgmode.org/manual/Creating-Footnotes.html
+
+[fn:doc-link] Related documentation can be found in [[file:basics.org][the Basics
+file]] and [[file:metadata.org][the Metadata file]].
