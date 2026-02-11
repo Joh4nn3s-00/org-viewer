@@ -13,219 +13,223 @@
 
 import type { Plugin } from "unified";
 
-function visitNode(node: any, parent: any, index: number): any[] {
-  const replacements: any[] = [];
+// ─── Uniorg AST Type Interfaces ─────────────────────────────────
 
-  switch (node.type) {
-    case "keyword": {
-      const displayKeys = new Set([
-        "TITLE", "AUTHOR", "DATE", "EMAIL", "DESCRIPTION",
-        "CATEGORY", "FILETAGS", "LANGUAGE",
-      ]);
-      if (displayKeys.has(node.key)) {
-        replacements.push(makeMetaBlock(node.key, node.value));
-      }
-      break;
-    }
-
-    case "planning": {
-      const parts: string[] = [];
-      if (node.scheduled) {
-        parts.push(`SCHEDULED: ${node.scheduled.rawValue}`);
-      }
-      if (node.deadline) {
-        parts.push(`DEADLINE: ${node.deadline.rawValue}`);
-      }
-      if (node.closed) {
-        parts.push(`CLOSED: ${node.closed.rawValue}`);
-      }
-      if (parts.length > 0) {
-        replacements.push(makePlanningBlock(parts));
-      }
-      break;
-    }
-
-    case "property-drawer": {
-      const props = (node.children || [])
-        .filter((c: any) => c.type === "node-property")
-        .map((c: any) => ({ key: c.key, value: c.value }));
-      if (props.length > 0) {
-        replacements.push(makePropertyDrawer(props));
-      }
-      break;
-    }
-
-    case "drawer": {
-      replacements.push(...makeCustomDrawer(node.name, node));
-      break;
-    }
-
-    case "clock": {
-      const duration = node.duration || "";
-      const timeStr = node.value ? node.value.rawValue : "";
-      const status = node.status === "running" ? " (running)" : "";
-      replacements.push(makeClockEntry(timeStr, duration, status));
-      break;
-    }
-
-    case "latex-fragment": {
-      // Distinguish display math ($$...$$) from inline math ($...$)
-      if (node.value && node.value.startsWith("$$")) {
-        // Mark as display math by converting to latex-environment
-        // which uniorg-rehype renders as div.math.math-display
-        return [{
-          type: "latex-environment",
-          affiliated: {},
-          value: node.contents.trim(),
-        }];
-      }
-      return [node];
-    }
-
-    default:
-      return [node];
-  }
-
-  return replacements.length > 0 ? replacements : [node];
+interface OrgTimestamp {
+  rawValue: string;
 }
 
-/**
- * Walk list items and inject checkbox text nodes.
- * uniorg-rehype ignores the checkbox property entirely.
- */
-function addCheckboxes(node: any): void {
-  if (node.type === "list-item" && node.checkbox) {
-    const symbol =
-      node.checkbox === "on" ? "\u2611 " :  // ☑
-      node.checkbox === "off" ? "\u2610 " : // ☐
-      node.checkbox === "trans" ? "\u2612 " : ""; // ☒ (partial)
-
-    if (symbol && node.children && node.children.length > 0) {
-      // Find the first paragraph or text-bearing child
-      const first = node.children[0];
-      if (first.type === "paragraph" && first.children && first.children.length > 0) {
-        first.children.unshift({ type: "text", value: symbol });
-      } else if (first.type === "list-item-tag") {
-        // Description list with checkbox - prepend to the tag
-        if (first.children && first.children.length > 0) {
-          first.children.unshift({ type: "text", value: symbol });
-        }
-      } else {
-        // Wrap in a text node before existing content
-        node.children.unshift({
-          type: "paragraph",
-          affiliated: {},
-          contentsBegin: 0,
-          contentsEnd: 0,
-          children: [{ type: "text", value: symbol }],
-        });
-      }
-    }
-  }
-
-  if (node.children && Array.isArray(node.children)) {
-    for (const child of node.children) {
-      addCheckboxes(child);
-    }
-  }
+interface TextNode {
+  type: "text";
+  value: string;
 }
 
-function makeMetaBlock(key: string, value: string): any {
+interface BoldNode {
+  type: "bold";
+  contentsBegin: number;
+  contentsEnd: number;
+  children: OrgNode[];
+}
+
+interface CodeNode {
+  type: "code";
+  value: string;
+}
+
+interface LineBreakNode {
+  type: "line-break";
+}
+
+interface ParagraphNode {
+  type: "paragraph";
+  affiliated: Record<string, unknown>;
+  contentsBegin: number;
+  contentsEnd: number;
+  children: OrgNode[];
+}
+
+interface KeywordNode {
+  type: "keyword";
+  key: string;
+  value: string;
+}
+
+interface PlanningNode {
+  type: "planning";
+  scheduled: OrgTimestamp | null;
+  deadline: OrgTimestamp | null;
+  closed: OrgTimestamp | null;
+}
+
+interface NodePropertyNode {
+  type: "node-property";
+  key: string;
+  value: string;
+}
+
+interface PropertyDrawerNode {
+  type: "property-drawer";
+  children: OrgNode[];
+}
+
+interface DrawerNode {
+  type: "drawer";
+  name: string;
+  children: OrgNode[];
+}
+
+interface ClockNode {
+  type: "clock";
+  value: OrgTimestamp | null;
+  duration: string;
+  status: string;
+}
+
+interface LatexFragmentNode {
+  type: "latex-fragment";
+  value: string;
+  contents: string;
+}
+
+interface LatexEnvironmentNode {
+  type: "latex-environment";
+  affiliated: Record<string, unknown>;
+  value: string;
+}
+
+interface ListItemNode {
+  type: "list-item";
+  checkbox: "on" | "off" | "trans" | null;
+  children: OrgNode[];
+}
+
+interface SubscriptNode {
+  type: "subscript";
+  children: OrgNode[];
+}
+
+interface SuperscriptNode {
+  type: "superscript";
+  children: OrgNode[];
+}
+
+/** Union of all org AST node types we handle. Includes a fallback for any others. */
+type OrgNode =
+  | TextNode
+  | BoldNode
+  | CodeNode
+  | LineBreakNode
+  | ParagraphNode
+  | KeywordNode
+  | PlanningNode
+  | NodePropertyNode
+  | PropertyDrawerNode
+  | DrawerNode
+  | ClockNode
+  | LatexFragmentNode
+  | LatexEnvironmentNode
+  | ListItemNode
+  | SubscriptNode
+  | SuperscriptNode
+  | GenericOrgNode;
+
+/** Catch-all for node types we don't explicitly handle. */
+interface GenericOrgNode {
+  type: string;
+  value?: string;
+  children?: OrgNode[];
+  [key: string]: unknown;
+}
+
+// ─── Helper: narrowing guards ───────────────────────────────────
+
+function hasChildren(node: OrgNode): node is OrgNode & { children: OrgNode[] } {
+  return "children" in node && Array.isArray((node as GenericOrgNode).children);
+}
+
+// ─── AST Construction Helpers ───────────────────────────────────
+
+const DISPLAY_KEYWORDS = new Set([
+  "TITLE", "AUTHOR", "DATE", "EMAIL", "DESCRIPTION",
+  "CATEGORY", "FILETAGS", "LANGUAGE",
+]);
+
+function makeText(value: string): TextNode {
+  return { type: "text", value };
+}
+
+function makeBold(text: string): BoldNode {
+  return {
+    type: "bold",
+    contentsBegin: 0,
+    contentsEnd: 0,
+    children: [makeText(text)],
+  };
+}
+
+function makeParagraph(children: OrgNode[]): ParagraphNode {
   return {
     type: "paragraph",
     affiliated: {},
     contentsBegin: 0,
     contentsEnd: 0,
-    children: [
-      { type: "bold", contentsBegin: 0, contentsEnd: 0, children: [{ type: "text", value: key + ": " }] },
-      { type: "text", value: value + "\n" },
-    ],
+    children,
   };
 }
 
-function makePlanningBlock(parts: string[]): any {
-  const children: any[] = [];
+function makeMetaBlock(key: string, value: string): ParagraphNode {
+  return makeParagraph([
+    makeBold(key + ": "),
+    makeText(value + "\n"),
+  ]);
+}
+
+function makePlanningBlock(parts: string[]): ParagraphNode {
+  const children: OrgNode[] = [];
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
     const label = part.split(":")[0] + ": ";
     const ts = part.substring(label.length);
-    if (i > 0) children.push({ type: "text", value: "  " });
-    children.push({
-      type: "bold",
-      contentsBegin: 0,
-      contentsEnd: 0,
-      children: [{ type: "text", value: label }],
-    });
-    children.push({ type: "code", value: ts });
+    if (i > 0) children.push(makeText("  "));
+    children.push(makeBold(label));
+    children.push({ type: "code", value: ts } as CodeNode);
   }
-  children.push({ type: "text", value: "\n" });
-  return {
-    type: "paragraph",
-    affiliated: {},
-    contentsBegin: 0,
-    contentsEnd: 0,
-    children,
-  };
+  children.push(makeText("\n"));
+  return makeParagraph(children);
 }
 
-function makePropertyDrawer(props: { key: string; value: string }[]): any {
-  const children: any[] = [];
-  children.push({
-    type: "bold",
-    contentsBegin: 0,
-    contentsEnd: 0,
-    children: [{ type: "text", value: "Properties" }],
-  });
-  children.push({ type: "line-break" });
+function makePropertyDrawer(props: { key: string; value: string }[]): ParagraphNode {
+  const children: OrgNode[] = [];
+  children.push(makeBold("Properties"));
+  children.push({ type: "line-break" } as LineBreakNode);
 
   for (const prop of props) {
-    children.push({ type: "code", value: prop.key });
-    children.push({ type: "text", value: ": " + prop.value });
-    children.push({ type: "line-break" });
+    children.push({ type: "code", value: prop.key } as CodeNode);
+    children.push(makeText(": " + prop.value));
+    children.push({ type: "line-break" } as LineBreakNode);
   }
 
-  return {
-    type: "paragraph",
-    affiliated: {},
-    contentsBegin: 0,
-    contentsEnd: 0,
-    children,
-  };
+  return makeParagraph(children);
 }
 
-function makeCustomDrawer(name: string, node: any): any[] {
-  const result: any[] = [];
+function makeCustomDrawer(name: string, node: DrawerNode): OrgNode[] {
+  const result: OrgNode[] = [];
 
-  // Drawer header
-  result.push({
-    type: "paragraph",
-    affiliated: {},
-    contentsBegin: 0,
-    contentsEnd: 0,
-    children: [
-      {
-        type: "bold",
-        contentsBegin: 0,
-        contentsEnd: 0,
-        children: [{ type: "text", value: name }],
-      },
-      { type: "text", value: "\n" },
-    ],
-  });
+  result.push(makeParagraph([makeBold(name), makeText("\n")]));
 
-  // Process drawer children — transform clock/property nodes here too
-  // since they won't be caught by the top-level transform
   if (node.children) {
     for (const child of node.children) {
       if (child.type === "clock") {
-        const duration = child.duration || "";
-        const timeStr = child.value ? child.value.rawValue : "";
-        const status = child.status === "running" ? " (running)" : "";
+        const clock = child as ClockNode;
+        const duration = clock.duration || "";
+        const timeStr = clock.value ? clock.value.rawValue : "";
+        const status = clock.status === "running" ? " (running)" : "";
         result.push(makeClockEntry(timeStr, duration, status));
       } else if (child.type === "property-drawer") {
-        const props = (child.children || [])
-          .filter((c: any) => c.type === "node-property")
-          .map((c: any) => ({ key: c.key, value: c.value }));
+        const drawer = child as PropertyDrawerNode;
+        const props = (drawer.children || [])
+          .filter((c): c is NodePropertyNode => c.type === "node-property")
+          .map((c) => ({ key: c.key, value: c.value }));
         if (props.length > 0) {
           result.push(makePropertyDrawer(props));
         }
@@ -238,62 +242,179 @@ function makeCustomDrawer(name: string, node: any): any[] {
   return result;
 }
 
-function makeClockEntry(timeStr: string, duration: string, status: string): any {
-  const children: any[] = [
-    {
-      type: "bold",
-      contentsBegin: 0,
-      contentsEnd: 0,
-      children: [{ type: "text", value: "CLOCK: " }],
-    },
-    { type: "code", value: timeStr },
+function makeClockEntry(timeStr: string, duration: string, status: string): ParagraphNode {
+  const children: OrgNode[] = [
+    makeBold("CLOCK: "),
+    { type: "code", value: timeStr } as CodeNode,
   ];
   if (duration) {
-    children.push({ type: "text", value: " => " });
-    children.push({ type: "code", value: duration });
+    children.push(makeText(" => "));
+    children.push({ type: "code", value: duration } as CodeNode);
   }
   if (status) {
-    children.push({ type: "text", value: status });
+    children.push(makeText(status));
   }
-  children.push({ type: "text", value: "\n" });
-  return {
-    type: "paragraph",
-    affiliated: {},
-    contentsBegin: 0,
-    contentsEnd: 0,
-    children,
-  };
+  children.push(makeText("\n"));
+  return makeParagraph(children);
 }
 
-function transformTree(node: any, parent: any = null, index: number = 0): void {
-  if (node.children && Array.isArray(node.children)) {
-    const newChildren: any[] = [];
-    for (let i = 0; i < node.children.length; i++) {
-      const child = node.children[i];
-      const result = visitNode(child, node, i);
-      for (const r of result) {
-        if (Array.isArray(r)) {
-          newChildren.push(...r);
+// ─── Tree Transforms ────────────────────────────────────────────
+
+function visitNode(node: OrgNode): OrgNode[] {
+  switch (node.type) {
+    case "keyword": {
+      const kw = node as KeywordNode;
+      if (DISPLAY_KEYWORDS.has(kw.key)) {
+        return [makeMetaBlock(kw.key, kw.value)];
+      }
+      break;
+    }
+
+    case "planning": {
+      const plan = node as PlanningNode;
+      const parts: string[] = [];
+      if (plan.scheduled) parts.push(`SCHEDULED: ${plan.scheduled.rawValue}`);
+      if (plan.deadline) parts.push(`DEADLINE: ${plan.deadline.rawValue}`);
+      if (plan.closed) parts.push(`CLOSED: ${plan.closed.rawValue}`);
+      if (parts.length > 0) return [makePlanningBlock(parts)];
+      break;
+    }
+
+    case "property-drawer": {
+      const pd = node as PropertyDrawerNode;
+      const props = (pd.children || [])
+        .filter((c): c is NodePropertyNode => c.type === "node-property")
+        .map((c) => ({ key: c.key, value: c.value }));
+      if (props.length > 0) return [makePropertyDrawer(props)];
+      break;
+    }
+
+    case "drawer": {
+      const drawer = node as DrawerNode;
+      return makeCustomDrawer(drawer.name, drawer);
+    }
+
+    case "clock": {
+      const clock = node as ClockNode;
+      const duration = clock.duration || "";
+      const timeStr = clock.value ? clock.value.rawValue : "";
+      const status = clock.status === "running" ? " (running)" : "";
+      return [makeClockEntry(timeStr, duration, status)];
+    }
+
+    case "latex-fragment": {
+      const lf = node as LatexFragmentNode;
+      if (lf.value && lf.value.startsWith("$$")) {
+        return [{
+          type: "latex-environment",
+          affiliated: {},
+          value: lf.contents.trim(),
+        } as LatexEnvironmentNode];
+      }
+      return [node];
+    }
+
+    default:
+      return [node];
+  }
+
+  return [node];
+}
+
+/**
+ * Walk list items and inject checkbox text nodes.
+ * uniorg-rehype ignores the checkbox property entirely.
+ */
+function addCheckboxes(node: OrgNode): void {
+  if (node.type === "list-item") {
+    const li = node as ListItemNode;
+    if (li.checkbox) {
+      const symbol =
+        li.checkbox === "on"    ? "\u2611 " :  // ☑
+        li.checkbox === "off"   ? "\u2610 " :  // ☐
+        li.checkbox === "trans" ? "\u2612 " :   // ☒
+        "";
+
+      if (symbol && li.children && li.children.length > 0) {
+        const first = li.children[0];
+        if (first.type === "paragraph" && hasChildren(first) && first.children.length > 0) {
+          first.children.unshift(makeText(symbol));
+        } else if (first.type === "list-item-tag" && hasChildren(first)) {
+          first.children.unshift(makeText(symbol));
         } else {
-          newChildren.push(r);
+          li.children.unshift(makeParagraph([makeText(symbol)]));
         }
       }
     }
-    node.children = newChildren;
+  }
 
-    // Recurse into new children
-    for (let i = 0; i < node.children.length; i++) {
-      transformTree(node.children[i], node, i);
+  if (hasChildren(node)) {
+    for (const child of node.children) {
+      addCheckboxes(child);
     }
   }
 }
 
+function transformTree(node: OrgNode): void {
+  if (!hasChildren(node)) return;
+
+  const newChildren: OrgNode[] = [];
+  for (const child of node.children) {
+    const result = visitNode(child);
+    for (const r of result) {
+      if (Array.isArray(r)) {
+        newChildren.push(...r);
+      } else {
+        newChildren.push(r);
+      }
+    }
+  }
+  node.children = newChildren;
+
+  for (const child of node.children) {
+    transformTree(child);
+  }
+}
+
+/**
+ * Flatten subscript/superscript nodes back to plain text.
+ * uniorg-parse treats `_` and `^` as sub/superscript operators,
+ * which mangles filenames like `quick_reference.org`.
+ */
+function flattenSubSuperscripts(node: OrgNode): void {
+  if (!hasChildren(node)) return;
+
+  const newChildren: OrgNode[] = [];
+  for (const child of node.children) {
+    if (child.type === "subscript" || child.type === "superscript") {
+      const prefix = child.type === "subscript" ? "_" : "^";
+      const innerText = extractText(child);
+      newChildren.push(makeText(prefix + innerText));
+    } else {
+      flattenSubSuperscripts(child);
+      newChildren.push(child);
+    }
+  }
+  node.children = newChildren;
+}
+
+/** Recursively extract plain text from a node tree. */
+function extractText(node: OrgNode): string {
+  if (node.type === "text") return (node as TextNode).value || "";
+  if (hasChildren(node)) {
+    return node.children.map(extractText).join("");
+  }
+  return (node as GenericOrgNode).value || "";
+}
+
+// ─── Plugin Export ──────────────────────────────────────────────
+
 const uniorgMetadata: Plugin = function () {
-  return (tree: any) => {
-    // First pass: transform metadata nodes
-    transformTree(tree);
-    // Second pass: inject checkbox symbols
-    addCheckboxes(tree);
+  return (tree: unknown) => {
+    const root = tree as OrgNode;
+    transformTree(root);
+    addCheckboxes(root);
+    flattenSubSuperscripts(root);
   };
 };
 

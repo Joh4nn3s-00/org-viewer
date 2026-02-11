@@ -2,5 +2,9 @@ node_modules/
 dist/
 out/
 debug/
+temp/
 .vscode-test/
 *.vsix
+
+# Build artifacts (rebuilt by esbuild)
+media/preview.js

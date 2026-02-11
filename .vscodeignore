@@ -3,6 +3,8 @@
 src/**
 test/**
 demo/**
+debug/**
+temp/**
 out/**
 node_modules/**
 .gitignore
@@ -11,3 +13,4 @@ esbuild.js
 **/*.map
 **/*.ts
 !dist/**
+!media/**

@@ -11,6 +11,11 @@ body {
   margin: 0 auto;
 }
 
+/* Shift content right when TOC sidebar is present */
+body.has-toc {
+  margin-left: 196px;
+}
+
 /* ═══════════════════════════════════════
    Headings — colored by level
    ═══════════════════════════════════════ */
@@ -37,6 +42,60 @@ h3 { font-size: 1.25em; color: #dcdcaa; }
 h4 { font-size: 1.1em; color: #9cdcfe; }
 h5 { font-size: 1em; color: #ce9178; }
 h6 { font-size: 0.95em; color: #6a9955; }
+
+/* ═══════════════════════════════════════
+   Collapsible Section Hierarchy
+   ═══════════════════════════════════════ */
+.org-section {
+  position: relative;
+}
+
+/* Section body — indented with a subtle guide line */
+.section-body {
+  padding-left: 1.25rem;
+  border-left: 1px solid rgba(128, 128, 128, 0.15);
+  margin-left: 0.4rem;
+}
+
+.section-body.collapsed {
+  display: none;
+}
+
+/* Toggle chevron */
+.section-toggle {
+  display: inline-block;
+  width: 1.1em;
+  font-size: 0.55em;
+  vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+  margin-right: 0.15em;
+}
+
+.section-heading:hover .section-toggle {
+  opacity: 1;
+}
+
+/* Sticky headings — pin to top on scroll */
+.section-heading {
+  position: sticky;
+  top: 0;
+  background-color: var(--vscode-editor-background);
+  z-index: 10;
+  cursor: pointer;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+/* Collapsed state: dim the heading slightly */
+.is-collapsed > .section-heading {
+  opacity: 0.7;
+}
+.is-collapsed > .section-heading:hover {
+  opacity: 1;
+}
 
 /* ═══════════════════════════════════════
    Paragraphs
@@ -138,19 +197,43 @@ pre code {
   text-transform: uppercase;
 }
 
-/* Language-specific code colors */
-code[class*="language-python"] { color: #4ec9b0; }
-code[class*="language-javascript"],
-code[class*="language-typescript"] { color: #dcdcaa; }
-code[class*="language-rust"] { color: #ce9178; }
-code[class*="language-go"] { color: #9cdcfe; }
-code[class*="language-c"] { color: #569cd6; }
-code[class*="language-sql"] { color: #c586c0; }
-code[class*="language-html"] { color: #d69d85; }
-code[class*="language-bash"] { color: #6a9955; }
-code[class*="language-json"],
-code[class*="language-yaml"] { color: #ce9178; }
-code[class*="language-emacs-lisp"] { color: #b5cea8; }
+/* ═══════════════════════════════════════
+   Syntax highlighting (highlight.js tokens)
+   Colors match VS Code Dark+ theme
+   ═══════════════════════════════════════ */
+.hljs { color: #d4d4d4; }
+.hljs-keyword,
+.hljs-tag,
+.hljs-type { color: #569cd6; }
+.hljs-string,
+.hljs-attr { color: #ce9178; }
+.hljs-comment,
+.hljs-quote { color: #6a9955; font-style: italic; }
+.hljs-title,
+.hljs-title.function_ { color: #dcdcaa; }
+.hljs-number,
+.hljs-literal { color: #b5cea8; }
+.hljs-built_in { color: #4ec9b0; }
+.hljs-variable,
+.hljs-template-variable { color: #9cdcfe; }
+.hljs-name { color: #569cd6; }
+.hljs-selector-class,
+.hljs-selector-id { color: #d7ba7d; }
+.hljs-selector-tag { color: #d69d85; }
+.hljs-meta { color: #c586c0; }
+.hljs-meta .hljs-keyword { color: #c586c0; }
+.hljs-meta .hljs-string { color: #ce9178; }
+.hljs-regexp { color: #d16969; }
+.hljs-symbol { color: #4fc1ff; }
+.hljs-params { color: #9cdcfe; }
+.hljs-section { color: #4fc1ff; }
+.hljs-addition { color: #73c991; }
+.hljs-deletion { color: #f44747; }
+.hljs-emphasis { font-style: italic; }
+.hljs-strong { font-weight: bold; }
+
+/* Fallback tint when highlight.js doesn't recognize the language */
+code[class*="language-"]:not(.hljs) { color: #d4d4d4; }
 
 /* ═══════════════════════════════════════
    Example blocks — must preserve whitespace
@@ -433,3 +516,79 @@ del {
   padding: 0;
   margin: 0;
 }
+
+/* ═══════════════════════════════════════
+   Table of Contents Sidebar
+   ═══════════════════════════════════════ */
+.org-toc {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 180px;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: var(--vscode-sideBar-background, rgba(30, 30, 30, 0.97));
+  border-right: 1px solid var(--vscode-panel-border, #333);
+  padding: 8px 0;
+  font-size: 0.8em;
+  z-index: 100;
+}
+
+.toc-header {
+  padding: 8px 12px 10px;
+  font-weight: 700;
+  font-size: 1em;
+  color: var(--vscode-sideBarTitle-foreground, #ddd);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid var(--vscode-panel-border, #333);
+  margin-bottom: 6px;
+}
+
+.toc-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.toc-item {
+  display: block;
+  padding: 3px 12px;
+  color: var(--vscode-sideBar-foreground, #ccc);
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-left: 2px solid transparent;
+  transition: background-color 0.1s, border-color 0.1s;
+  font-size: 0.95em;
+}
+
+.toc-item:hover {
+  background-color: var(--vscode-list-hoverBackground, rgba(255, 255, 255, 0.05));
+  text-decoration: none;
+  color: var(--vscode-list-hoverForeground, #fff);
+}
+
+.toc-item.active {
+  border-left-color: currentColor;
+  background-color: rgba(255, 255, 255, 0.05);
+  font-weight: 600;
+}
+
+/* Indentation and color per heading level — synced with main heading colors */
+.toc-level-1 { padding-left: 12px; font-weight: 700; font-size: 1em; color: #4fc1ff; }
+.toc-level-2 { padding-left: 24px; font-weight: 600; font-size: 0.95em; color: #c586c0; }
+.toc-level-3 { padding-left: 36px; font-size: 0.9em; color: #dcdcaa; }
+.toc-level-4 { padding-left: 48px; font-size: 0.85em; color: #9cdcfe; }
+.toc-level-5 { padding-left: 56px; font-size: 0.85em; color: #ce9178; }
+.toc-level-6 { padding-left: 64px; font-size: 0.85em; color: #6a9955; }
+
+/* Active state keeps its level color but brighter */
+.toc-level-1.active { color: #6dd1ff; }
+.toc-level-2.active { color: #d9a0d9; }
+.toc-level-3.active { color: #ededc2; }
+.toc-level-4.active { color: #b8e6ff; }
+.toc-level-5.active { color: #e0a88e; }
+.toc-level-6.active { color: #85c470; }

@@ -1,44 +1,52 @@
 import * as vscode from "vscode";
-import { showPreview, updatePreviewIfVisible, followActiveEditor } from "./preview";
+import { PreviewManager } from "./preview";
+
+const UPDATE_DEBOUNCE_MS = 300;
 
 export function activate(context: vscode.ExtensionContext): void {
-  // Command: Open preview in the current column
+  const previews = new PreviewManager(context.extensionUri);
+
   context.subscriptions.push(
     vscode.commands.registerCommand("orgViewer.showPreview", () => {
       const editor = vscode.window.activeTextEditor;
       if (editor && editor.document.languageId === "org") {
-        showPreview(editor.document, context.extensionUri, false);
+        previews.show(editor.document, false);
       }
     })
   );
 
-  // Command: Open preview to the side (split view)
   context.subscriptions.push(
     vscode.commands.registerCommand("orgViewer.showPreviewToSide", () => {
       const editor = vscode.window.activeTextEditor;
       if (editor && editor.document.languageId === "org") {
-        showPreview(editor.document, context.extensionUri, true);
+        previews.show(editor.document, true);
       }
     })
   );
 
-  // Live-update the preview when the document changes
+  // Debounced live-update on document edits
+  let debounceTimer: ReturnType<typeof setTimeout> | undefined;
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((event) => {
       if (event.document.languageId === "org") {
-        updatePreviewIfVisible(event.document, context.extensionUri);
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          previews.updateIfVisible(event.document);
+        }, UPDATE_DEBOUNCE_MS);
       }
     })
   );
 
-  // Update preview when the active editor changes — follow to new .org files
+  // Follow active editor to new .org files
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor((editor) => {
       if (editor && editor.document.languageId === "org") {
-        followActiveEditor(editor.document, context.extensionUri);
+        previews.followActiveEditor(editor.document);
       }
     })
   );
+
+  context.subscriptions.push({ dispose: () => clearTimeout(debounceTimer) });
 }
 
 export function deactivate(): void {
