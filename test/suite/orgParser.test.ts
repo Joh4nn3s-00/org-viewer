@@ -116,7 +116,7 @@ suite("Org Parser Test Suite", () => {
     assert.ok(result.includes("SCHEDULED"));
   });
 
-  test("should flatten subscripts in plain text", async () => {
+  test("should not create subscripts from underscores", async () => {
     const result = await orgToHtml("The file quick_reference.org is useful.");
     assert.ok(!result.includes("<sub>"), "should not contain subscript tags");
     assert.ok(result.includes("quick_reference"), "should preserve underscore text");

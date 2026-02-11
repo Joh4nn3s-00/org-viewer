@@ -67,7 +67,7 @@ function rehypeCleanUnknownNodes() {
 }
 
 const processor = unified()
-  .use(uniorgParse)
+  .use(uniorgParse, { useSubSuperscripts: false })
   .use(uniorgMetadata)
   .use(uniorg2rehype)
   .use(rehypeRaw, { passThrough: passthroughNodeTypes })

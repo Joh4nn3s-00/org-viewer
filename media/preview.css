@@ -544,6 +544,22 @@ del {
   letter-spacing: 0.08em;
   border-bottom: 1px solid var(--vscode-panel-border, #333);
   margin-bottom: 6px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+/* Token count badge next to Contents header */
+.toc-token-count {
+  font-size: 0.75em;
+  font-weight: 400;
+  color: #dcdcaa;
+  background-color: rgba(220, 220, 170, 0.1);
+  padding: 1px 6px;
+  border-radius: 3px;
+  text-transform: none;
+  letter-spacing: 0;
+  cursor: help;
 }
 
 .toc-items {
@@ -592,3 +608,53 @@ del {
 .toc-level-4.active { color: #b8e6ff; }
 .toc-level-5.active { color: #e0a88e; }
 .toc-level-6.active { color: #85c470; }
+
+/* ═══════════════════════════════════════
+   File Reference Styling
+   ═══════════════════════════════════════ */
+.file-ref {
+  font-family: var(--vscode-editor-fontFamily, monospace);
+  font-size: 0.9em;
+  padding: 1px 4px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+/* .org files — primary, clickable */
+a.file-ref-org {
+  color: #4fc1ff;
+  background-color: rgba(79, 193, 255, 0.1);
+  text-decoration: none;
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(79, 193, 255, 0.4);
+}
+a.file-ref-org:hover {
+  background-color: rgba(79, 193, 255, 0.2);
+  border-bottom-style: solid;
+  text-decoration: none;
+  color: #6dd1ff;
+}
+
+/* Markdown / docs */
+.file-ref-doc {
+  color: #c586c0;
+  background-color: rgba(197, 134, 192, 0.08);
+}
+
+/* Code files (.py, .js, .ts, etc.) */
+.file-ref-code {
+  color: #dcdcaa;
+  background-color: rgba(220, 220, 170, 0.08);
+}
+
+/* Config files (.json, .yaml, .toml, etc.) */
+.file-ref-config {
+  color: #ce9178;
+  background-color: rgba(206, 145, 120, 0.08);
+}
+
+/* Generic / unrecognized file types */
+.file-ref-generic {
+  color: #9cdcfe;
+  background-color: rgba(156, 220, 254, 0.06);
+}

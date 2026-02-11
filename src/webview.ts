@@ -6,15 +6,22 @@
  * 1. Syntax highlighting for code blocks (highlight.js)
  * 2. Collapsible sections with toggle chevrons
  * 3. Stacked sticky headings (sub-headings sit below parent headings)
- * 4. Table of contents sidebar with scroll spy
+ * 4. Table of contents sidebar with scroll spy + token count
+ * 5. File reference detection and styling
+ * 6. Clickable .org file references (opens in editor)
  */
 
 import hljs from "highlight.js/lib/common";
+
+// VS Code webview API for messaging back to the extension host
+declare function acquireVsCodeApi(): { postMessage(msg: unknown): void };
+const vscode = acquireVsCodeApi();
 
 document.addEventListener("DOMContentLoaded", () => {
   highlightCode();
   buildSections();
   setStickyOffsets();
+  linkifyFileReferences();
   buildToc();
   setupScrollSpy();
 });
@@ -51,45 +58,39 @@ function buildSections(): void {
     const level = headingLevel(child);
 
     if (level > 0) {
-      // Pop stack until we find a parent level (strictly lower number = higher rank)
       while (stack.length > 0 && stack[stack.length - 1].level >= level) {
         stack.pop();
       }
 
-      // Create section wrapper
       const section = document.createElement("div");
       section.className = `org-section org-level-${level}`;
 
-      // Add toggle chevron to heading
       const toggle = document.createElement("span");
       toggle.className = "section-toggle";
       toggle.textContent = "\u25BC"; // ▼
       child.insertBefore(toggle, child.firstChild);
 
-      // Make heading clickable for collapse/expand
       child.classList.add("section-heading");
       child.addEventListener("click", (e) => {
-        // Don't toggle when clicking links inside headings
         if ((e.target as HTMLElement).closest("a")) return;
+        if ((e.target as HTMLElement).closest(".file-ref")) return;
 
         const body = section.querySelector(
           ":scope > .section-body"
         ) as HTMLElement | null;
         if (body) {
           const collapsed = body.classList.toggle("collapsed");
-          toggle.textContent = collapsed ? "\u25B6" : "\u25BC"; // ▶ or ▼
+          toggle.textContent = collapsed ? "\u25B6" : "\u25BC";
           section.classList.toggle("is-collapsed", collapsed);
         }
       });
 
       section.appendChild(child);
 
-      // Create body wrapper for section content
       const body = document.createElement("div");
       body.className = "section-body";
       section.appendChild(body);
 
-      // Attach to parent section or root
       if (stack.length > 0) {
         stack[stack.length - 1].body.appendChild(section);
       } else {
@@ -98,7 +99,6 @@ function buildSections(): void {
 
       stack.push({ level, body });
     } else {
-      // Non-heading element: append to current section body or root
       if (stack.length > 0) {
         stack[stack.length - 1].body.appendChild(child);
       } else {
@@ -112,17 +112,13 @@ function buildSections(): void {
 }
 
 // ─── 3. Stacked Sticky Offsets ───────────────────────────────────
-// Each heading's `top` = sum of all ancestor sticky heading heights,
-// so sub-headings sit below their parent instead of overlapping.
 
 function setStickyOffsets(): void {
   const headings = document.querySelectorAll<HTMLElement>(".section-heading");
 
   headings.forEach((heading, index) => {
-    // Tag each heading with an ID for TOC linking
     heading.setAttribute("data-toc-id", String(index));
 
-    // Walk up the section tree to find ancestor headings
     let top = 0;
     let ancestor: Element | null =
       heading.closest(".org-section")?.parentElement?.closest(".org-section") ??
@@ -143,7 +139,105 @@ function setStickyOffsets(): void {
   });
 }
 
-// ─── 4. Table of Contents Sidebar ────────────────────────────────
+// ─── 4. File Reference Detection & Styling ───────────────────────
+
+// File extensions grouped by type
+const FILE_TYPE_MAP: Record<string, string> = {};
+["org"].forEach((e) => (FILE_TYPE_MAP[e] = "org"));
+["md", "mdx", "rst", "txt"].forEach((e) => (FILE_TYPE_MAP[e] = "doc"));
+["py", "js", "ts", "tsx", "jsx", "rs", "go", "java", "c", "cpp", "h", "rb",
+ "php", "swift", "kt", "cs", "sh", "bash", "zsh", "lua", "r", "pl", "ex",
+ "exs", "hs", "ml", "scala", "clj"].forEach((e) => (FILE_TYPE_MAP[e] = "code"));
+["json", "yaml", "yml", "toml", "xml", "html", "css", "scss", "less", "ini",
+ "cfg", "conf", "env", "sql"].forEach((e) => (FILE_TYPE_MAP[e] = "config"));
+
+// Matches file references like: path/to/file.ext or file.ext:123
+const FILE_REF_PATTERN =
+  /(?:(?:[\w.*-]+\/)*[\w.*-]+\.(?:org|md|mdx|py|js|ts|tsx|jsx|rs|go|java|c|cpp|h|rb|php|swift|kt|cs|sh|bash|zsh|lua|r|pl|ex|exs|hs|ml|scala|clj|json|yaml|yml|toml|xml|html|css|scss|less|ini|cfg|conf|env|sql|rst|txt)(?::\d+)?)/g;
+
+function linkifyFileReferences(): void {
+  const article = document.querySelector(".org-preview");
+  if (!article) return;
+
+  const walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT);
+  const textNodes: Text[] = [];
+
+  let node: Text | null;
+  while ((node = walker.nextNode() as Text | null)) {
+    // Skip nodes inside code blocks, pre, or existing links
+    const parent = node.parentElement;
+    if (parent && (
+      parent.closest("pre") ||
+      parent.closest("code") ||
+      parent.closest("a") ||
+      parent.closest(".file-ref")
+    )) continue;
+
+    if (FILE_REF_PATTERN.test(node.textContent || "")) {
+      textNodes.push(node);
+    }
+    FILE_REF_PATTERN.lastIndex = 0;
+  }
+
+  for (const textNode of textNodes) {
+    replaceFileRefs(textNode);
+  }
+}
+
+function replaceFileRefs(textNode: Text): void {
+  const text = textNode.textContent || "";
+  const fragment = document.createDocumentFragment();
+  let lastIndex = 0;
+
+  FILE_REF_PATTERN.lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = FILE_REF_PATTERN.exec(text)) !== null) {
+    // Add text before this match
+    if (match.index > lastIndex) {
+      fragment.appendChild(
+        document.createTextNode(text.slice(lastIndex, match.index))
+      );
+    }
+
+    const ref = match[0];
+    const ext = ref.replace(/:\d+$/, "").split(".").pop() || "";
+    const fileType = FILE_TYPE_MAP[ext] || "generic";
+
+    if (fileType === "org") {
+      // .org files are clickable links
+      const link = document.createElement("a");
+      link.className = `file-ref file-ref-${fileType}`;
+      link.textContent = ref;
+      link.title = `Open ${ref}`;
+      link.href = "#";
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        vscode.postMessage({ command: "openFile", path: ref });
+      });
+      fragment.appendChild(link);
+    } else {
+      // Other files get styled spans
+      const span = document.createElement("span");
+      span.className = `file-ref file-ref-${fileType}`;
+      span.textContent = ref;
+      fragment.appendChild(span);
+    }
+
+    lastIndex = match.index + ref.length;
+  }
+
+  if (lastIndex < text.length) {
+    fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
+  }
+
+  if (lastIndex > 0) {
+    textNode.parentNode?.replaceChild(fragment, textNode);
+  }
+}
+
+// ─── 5. Table of Contents Sidebar ────────────────────────────────
 
 function buildToc(): void {
   const headings = document.querySelectorAll<HTMLElement>(".section-heading");
@@ -152,9 +246,24 @@ function buildToc(): void {
   const nav = document.createElement("nav");
   nav.className = "org-toc";
 
+  // Header with token count
   const header = document.createElement("div");
   header.className = "toc-header";
-  header.textContent = "Contents";
+
+  const headerTitle = document.createElement("span");
+  headerTitle.textContent = "Contents";
+  header.appendChild(headerTitle);
+
+  const article = document.querySelector(".org-preview") as HTMLElement | null;
+  const tokenCount = article?.dataset.tokenCount;
+  if (tokenCount && tokenCount !== "0") {
+    const badge = document.createElement("span");
+    badge.className = "toc-token-count";
+    badge.textContent = formatTokenCount(parseInt(tokenCount, 10));
+    badge.title = `${parseInt(tokenCount, 10).toLocaleString()} tokens (cl100k estimate)`;
+    header.appendChild(badge);
+  }
+
   nav.appendChild(header);
 
   const list = document.createElement("div");
@@ -164,7 +273,6 @@ function buildToc(): void {
     const id = heading.getAttribute("data-toc-id") || "";
     const level = headingLevel(heading);
 
-    // Get heading text without the toggle chevron
     const clone = heading.cloneNode(true) as HTMLElement;
     const toggleEl = clone.querySelector(".section-toggle");
     if (toggleEl) toggleEl.remove();
@@ -188,7 +296,14 @@ function buildToc(): void {
   document.body.classList.add("has-toc");
 }
 
-// ─── 5. Scroll Spy ──────────────────────────────────────────────
+function formatTokenCount(count: number): string {
+  if (count >= 1000) {
+    return `${(count / 1000).toFixed(1)}k`;
+  }
+  return String(count);
+}
+
+// ─── 6. Scroll Spy ──────────────────────────────────────────────
 
 function setupScrollSpy(): void {
   const headings = document.querySelectorAll<HTMLElement>(".section-heading");
@@ -206,7 +321,6 @@ function setupScrollSpy(): void {
     }
   });
 
-  // Initial highlight
   updateActiveTocItem(headings);
 }
 
@@ -217,7 +331,6 @@ function updateActiveTocItem(headings: NodeListOf<HTMLElement>): void {
     const heading = headings[i];
     const rect = heading.getBoundingClientRect();
     const stickyTop = parseFloat(heading.style.top) || 0;
-    // Heading is "active" once it reaches or passes its sticky position
     if (rect.top <= stickyTop + 10) {
       current = heading;
     }

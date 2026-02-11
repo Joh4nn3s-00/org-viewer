@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { orgToHtml } from "./orgParser";
+import { countTokens } from "./tokenCount";
 import { getNonce, getUri } from "./util";
 
 /**
@@ -65,6 +66,7 @@ export class PreviewManager {
       }
     });
 
+    this.setupMessageHandler(panel);
     await this.update(panel, document);
   }
 
@@ -90,20 +92,67 @@ export class PreviewManager {
     await this.update(this.followPanel, document);
   }
 
+  private setupMessageHandler(panel: vscode.WebviewPanel): void {
+    panel.webview.onDidReceiveMessage(async (message) => {
+      if (message.command === "openFile" && message.path) {
+        await this.openReferencedFile(message.path, panel);
+      }
+    });
+  }
+
+  private async openReferencedFile(
+    refPath: string,
+    panel: vscode.WebviewPanel
+  ): Promise<void> {
+    // Find the file relative to any workspace folder
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders) return;
+
+    for (const folder of workspaceFolders) {
+      const uri = vscode.Uri.joinPath(folder.uri, refPath);
+      try {
+        await vscode.workspace.fs.stat(uri);
+        const doc = await vscode.workspace.openTextDocument(uri);
+        await vscode.window.showTextDocument(doc, vscode.ViewColumn.One);
+        return;
+      } catch {
+        // File not found in this folder, try next
+      }
+    }
+
+    // Try glob search as fallback (handles */quick_reference.org patterns)
+    const results = await vscode.workspace.findFiles(
+      `**/${refPath}`,
+      "**/node_modules/**",
+      1
+    );
+    if (results.length > 0) {
+      const doc = await vscode.workspace.openTextDocument(results[0]);
+      await vscode.window.showTextDocument(doc, vscode.ViewColumn.One);
+    }
+  }
+
   private async update(
     panel: vscode.WebviewPanel,
     document: vscode.TextDocument
   ): Promise<void> {
-    const html = await orgToHtml(document.getText());
+    const rawText = document.getText();
+    const html = await orgToHtml(rawText);
+    const tokens = countTokens(rawText);
+    const docUri = document.uri.toString();
     panel.title = `Preview: ${fileName(document)}`;
-    panel.webview.html = buildWebviewHtml(panel.webview, this.extensionUri, html);
+    panel.webview.html = buildWebviewHtml(
+      panel.webview, this.extensionUri, html, tokens, docUri
+    );
   }
 }
 
 function buildWebviewHtml(
   webview: vscode.Webview,
   extensionUri: vscode.Uri,
-  bodyHtml: string
+  bodyHtml: string,
+  tokenCount: number,
+  docUri: string
 ): string {
   const cssUri = getUri(webview, extensionUri, ["media", "preview.css"]);
   const jsUri = getUri(webview, extensionUri, ["media", "preview.js"]);
@@ -122,7 +171,9 @@ function buildWebviewHtml(
   <title>Org Preview</title>
 </head>
 <body>
-  <article class="org-preview">
+  <article class="org-preview"
+    data-token-count="${tokenCount}"
+    data-doc-uri="${escapeAttr(docUri)}">
     ${bodyHtml}
   </article>
   <script nonce="${nonce}" src="${jsUri}"></script>
@@ -133,4 +184,8 @@ function buildWebviewHtml(
 function fileName(doc: vscode.TextDocument): string {
   const parts = doc.uri.path.split("/");
   return parts[parts.length - 1];
+}
+
+function escapeAttr(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 }

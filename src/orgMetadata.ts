@@ -103,16 +103,6 @@ interface ListItemNode {
   children: OrgNode[];
 }
 
-interface SubscriptNode {
-  type: "subscript";
-  children: OrgNode[];
-}
-
-interface SuperscriptNode {
-  type: "superscript";
-  children: OrgNode[];
-}
-
 /** Union of all org AST node types we handle. Includes a fallback for any others. */
 type OrgNode =
   | TextNode
@@ -129,8 +119,6 @@ type OrgNode =
   | LatexFragmentNode
   | LatexEnvironmentNode
   | ListItemNode
-  | SubscriptNode
-  | SuperscriptNode
   | GenericOrgNode;
 
 /** Catch-all for node types we don't explicitly handle. */
@@ -376,37 +364,6 @@ function transformTree(node: OrgNode): void {
   }
 }
 
-/**
- * Flatten subscript/superscript nodes back to plain text.
- * uniorg-parse treats `_` and `^` as sub/superscript operators,
- * which mangles filenames like `quick_reference.org`.
- */
-function flattenSubSuperscripts(node: OrgNode): void {
-  if (!hasChildren(node)) return;
-
-  const newChildren: OrgNode[] = [];
-  for (const child of node.children) {
-    if (child.type === "subscript" || child.type === "superscript") {
-      const prefix = child.type === "subscript" ? "_" : "^";
-      const innerText = extractText(child);
-      newChildren.push(makeText(prefix + innerText));
-    } else {
-      flattenSubSuperscripts(child);
-      newChildren.push(child);
-    }
-  }
-  node.children = newChildren;
-}
-
-/** Recursively extract plain text from a node tree. */
-function extractText(node: OrgNode): string {
-  if (node.type === "text") return (node as TextNode).value || "";
-  if (hasChildren(node)) {
-    return node.children.map(extractText).join("");
-  }
-  return (node as GenericOrgNode).value || "";
-}
-
 // ─── Plugin Export ──────────────────────────────────────────────
 
 const uniorgMetadata: Plugin = function () {
@@ -414,7 +371,6 @@ const uniorgMetadata: Plugin = function () {
     const root = tree as OrgNode;
     transformTree(root);
     addCheckboxes(root);
-    flattenSubSuperscripts(root);
   };
 };
 
