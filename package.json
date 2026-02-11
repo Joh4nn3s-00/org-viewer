@@ -2,7 +2,7 @@
   "name": "org-viewer",
   "displayName": "Org Viewer",
   "description": "Live preview panel for Emacs Org-mode (.org) files, just like the built-in Markdown preview.",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "publisher": "johannes-exe-or-something",
   "license": "MIT",
   "repository": {

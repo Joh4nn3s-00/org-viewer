@@ -658,3 +658,208 @@ a.file-ref-org:hover {
   color: #9cdcfe;
   background-color: rgba(156, 220, 254, 0.06);
 }
+
+/* ═══════════════════════════════════════
+   View Toggle Bar (Preview / Doc Map)
+   ═══════════════════════════════════════ */
+.view-toggle-bar {
+  display: flex;
+  gap: 2px;
+  padding: 6px 0 12px;
+  border-bottom: 1px solid var(--vscode-panel-border, #333);
+  margin-bottom: 12px;
+}
+
+.view-toggle-btn {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--vscode-descriptionForeground, #888);
+  font-family: inherit;
+  font-size: 0.8em;
+  padding: 4px 14px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: color 0.15s, background-color 0.15s, border-color 0.15s;
+}
+
+.view-toggle-btn:hover {
+  color: var(--vscode-editor-foreground);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.view-toggle-btn.active {
+  color: var(--vscode-editor-foreground);
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: var(--vscode-panel-border, #555);
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════
+   Doc Map Container
+   ═══════════════════════════════════════ */
+.doc-map-container {
+  padding: 0;
+}
+
+.doc-map-loading {
+  color: var(--vscode-descriptionForeground, #888);
+  font-style: italic;
+  padding: 2em 0;
+  text-align: center;
+}
+
+.doc-map-empty {
+  color: var(--vscode-descriptionForeground, #888);
+  font-style: italic;
+  text-align: center;
+  padding: 2em 0;
+}
+
+.doc-map-title {
+  font-size: 1.3em;
+  font-weight: 600;
+  color: var(--vscode-editor-foreground);
+  margin: 0 0 0.2em;
+  border: none;
+  padding: 0;
+}
+
+.doc-map-subtitle {
+  font-size: 0.85em;
+  color: var(--vscode-descriptionForeground, #888);
+  margin: 0 0 1.5em;
+}
+
+/* Section groups (Strategic, Quick Reference, Other) */
+.doc-map-section {
+  margin-bottom: 1.5em;
+}
+
+.doc-map-section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.15);
+}
+
+.doc-map-section-desc {
+  font-size: 0.8em;
+  color: var(--vscode-descriptionForeground, #777);
+}
+
+/* Layer badges */
+.doc-map-layer-badge {
+  display: inline-block;
+  font-size: 0.75em;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.layer-strategic {
+  color: #4fc1ff;
+  background-color: rgba(79, 193, 255, 0.12);
+}
+
+.layer-quickref {
+  color: #c586c0;
+  background-color: rgba(197, 134, 192, 0.12);
+}
+
+.layer-other {
+  color: #9cdcfe;
+  background-color: rgba(156, 220, 254, 0.1);
+}
+
+/* File tree */
+.doc-map-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* Directory group */
+.doc-map-dir-group {
+  margin-left: 0;
+}
+
+.doc-map-dir-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--vscode-editor-foreground);
+  opacity: 0.85;
+}
+
+/* Individual file entry */
+.doc-map-file {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--vscode-editor-foreground);
+  font-size: 0.9em;
+  transition: background-color 0.1s;
+}
+
+.doc-map-file:hover {
+  background-color: var(--vscode-list-hoverBackground, rgba(255, 255, 255, 0.06));
+  text-decoration: none;
+}
+
+.doc-map-file-strategic { color: #4fc1ff; }
+.doc-map-file-quickref  { color: #c586c0; }
+.doc-map-file-other     { color: #9cdcfe; }
+
+/* Active (currently viewed) file */
+.doc-map-active {
+  background-color: rgba(255, 255, 255, 0.08);
+  font-weight: 600;
+  border-left: 3px solid currentColor;
+  padding-left: 7px;
+}
+
+.doc-map-active:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Tree connector line for indented files */
+.doc-map-connector {
+  display: inline-block;
+  width: 16px;
+  height: 1px;
+  background-color: rgba(128, 128, 128, 0.3);
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+/* File icon */
+.doc-map-icon {
+  flex-shrink: 0;
+  font-size: 0.9em;
+}
+
+/* File name */
+.doc-map-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Directory hint (for root-level files showing their parent dir) */
+.doc-map-dir {
+  font-size: 0.8em;
+  color: var(--vscode-descriptionForeground, #777);
+  margin-left: auto;
+  flex-shrink: 0;
+}

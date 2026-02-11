@@ -13,6 +13,7 @@ A live preview panel for Emacs Org-mode (`.org`) files in VS Code — just like 
 - **Token count** — See the file's token count in the TOC header — useful for managing AI context window budgets.
 - **Syntax highlighting** — Code blocks highlighted with VS Code Dark+ colors via highlight.js (~40 languages).
 - **File reference detection** — File paths in your document are automatically detected and color-coded by type. `.org` references are clickable and open directly in the editor.
+- **Doc Map** — Toggle from preview to a workspace-wide documentation map showing all `.org` files organized by layer (Strategic, Quick Reference, Other). Click any file to navigate.
 - **Org-mode rendering** — Headings, lists, tables, links, images, blockquotes, code blocks, math, horizontal rules, and more.
 - **Metadata support** — `#+TITLE`, `#+AUTHOR`, `#+DATE`, planning lines (SCHEDULED/DEADLINE/CLOSED), property drawers, custom drawers, and CLOCK entries.
 - **TODO/DONE badges** — Color-coded keyword badges, priority cookies (`[#A]`/`[#B]`/`[#C]`), and tags as pill badges.

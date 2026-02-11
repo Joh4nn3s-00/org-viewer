@@ -13,7 +13,7 @@ VS Code extension for live-previewing .org (Emacs Org-mode) files. Uses a unifie
 | src/preview.ts | PreviewManager class: WebviewPanel lifecycle, messaging, token counting |
 | src/orgParser.ts | Unified pipeline: uniorg-parse → orgMetadata → uniorg-rehype → rehype-raw → rehype-stringify |
 | src/orgMetadata.ts | Custom uniorg plugin for metadata, checkboxes, display math, drawers, CLOCK |
-| src/webview.ts | Browser-side: highlight.js, collapsible sections, TOC, sticky headings, file ref detection |
+| src/webview.ts | Browser-side: highlight.js, collapsible sections, TOC, sticky headings, file ref detection, doc map |
 | src/tokenCount.ts | Token counting via gpt-tokenizer (cl100k_base encoding) |
 | src/util.ts | getNonce(), getUri() helpers |
 | media/preview.css | Theme-aware styles, highlight.js Dark+ tokens, TOC sidebar, file ref colors |
@@ -45,7 +45,9 @@ HTML in webview
   → setStickyOffsets()      (calculates stacked top offsets for sticky headings)
   → linkifyFileReferences() (detects file paths, adds styling + click handlers for .org files)
   → buildToc()             (generates TOC sidebar with token count badge)
+  → buildViewToggle()      (Preview / Doc Map toggle bar)
   → setupScrollSpy()       (highlights active heading in TOC as user scrolls)
+  → setupMessageListener() (receives Doc Map data from extension host)
 #+END_EXAMPLE
 
 ** Custom Plugin: orgMetadata.ts
@@ -71,7 +73,20 @@ Runs at the uniorg AST level (before conversion to HTML). Handles features that 
 | Live update | Debounced (300ms) via extension.ts |
 | Token counting | Counts via gpt-tokenizer, embeds as data attribute |
 | File navigation | Handles webview messages to open .org references in editor |
+| Doc Map discovery | Scans workspace for .org files, classifies by layer, sends to webview |
 | CSP | Nonces for both styles and scripts |
+
+** Doc Map (preview.ts + webview.ts)
+
+Toggle between the rendered preview and a workspace-wide documentation map. The extension host scans for all .org files and classifies them into three layers:
+
+| Layer | Rule | Color |
+|-------|------|-------|
+| Strategic | Root-level files or ALL_CAPS .org one level deep | Blue (#4fc1ff) |
+| Quick Reference | Any file named quick_reference.org | Purple (#c586c0) |
+| Other | Everything else | Teal (#9cdcfe) |
+
+Quick reference files are grouped by parent directory. All files are clickable to navigate. The currently viewed file is highlighted.
 
 ** File Reference Detection (webview.ts)
 

@@ -9,12 +9,15 @@
  * 4. Table of contents sidebar with scroll spy + token count
  * 5. File reference detection and styling
  * 6. Clickable .org file references (opens in editor)
+ * 7. Doc Map toggle — workspace .org file tree view
  */
 
 import hljs from "highlight.js/lib/common";
 
 // VS Code webview API for messaging back to the extension host
-declare function acquireVsCodeApi(): { postMessage(msg: unknown): void };
+declare function acquireVsCodeApi(): {
+  postMessage(msg: unknown): void;
+};
 const vscode = acquireVsCodeApi();
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -23,7 +26,9 @@ document.addEventListener("DOMContentLoaded", () => {
   setStickyOffsets();
   linkifyFileReferences();
   buildToc();
+  buildViewToggle();
   setupScrollSpy();
+  setupMessageListener();
 });
 
 // ─── 1. Code Syntax Highlighting ─────────────────────────────────
@@ -67,7 +72,7 @@ function buildSections(): void {
 
       const toggle = document.createElement("span");
       toggle.className = "section-toggle";
-      toggle.textContent = "\u25BC"; // ▼
+      toggle.textContent = "\u25BC";
       child.insertBefore(toggle, child.firstChild);
 
       child.classList.add("section-heading");
@@ -141,7 +146,6 @@ function setStickyOffsets(): void {
 
 // ─── 4. File Reference Detection & Styling ───────────────────────
 
-// File extensions grouped by type
 const FILE_TYPE_MAP: Record<string, string> = {};
 ["org"].forEach((e) => (FILE_TYPE_MAP[e] = "org"));
 ["md", "mdx", "rst", "txt"].forEach((e) => (FILE_TYPE_MAP[e] = "doc"));
@@ -151,7 +155,6 @@ const FILE_TYPE_MAP: Record<string, string> = {};
 ["json", "yaml", "yml", "toml", "xml", "html", "css", "scss", "less", "ini",
  "cfg", "conf", "env", "sql"].forEach((e) => (FILE_TYPE_MAP[e] = "config"));
 
-// Matches file references like: path/to/file.ext or file.ext:123
 const FILE_REF_PATTERN =
   /(?:(?:[\w.*-]+\/)*[\w.*-]+\.(?:org|md|mdx|py|js|ts|tsx|jsx|rs|go|java|c|cpp|h|rb|php|swift|kt|cs|sh|bash|zsh|lua|r|pl|ex|exs|hs|ml|scala|clj|json|yaml|yml|toml|xml|html|css|scss|less|ini|cfg|conf|env|sql|rst|txt)(?::\d+)?)/g;
 
@@ -164,7 +167,6 @@ function linkifyFileReferences(): void {
 
   let node: Text | null;
   while ((node = walker.nextNode() as Text | null)) {
-    // Skip nodes inside code blocks, pre, or existing links
     const parent = node.parentElement;
     if (parent && (
       parent.closest("pre") ||
@@ -193,7 +195,6 @@ function replaceFileRefs(textNode: Text): void {
   let match: RegExpExecArray | null;
 
   while ((match = FILE_REF_PATTERN.exec(text)) !== null) {
-    // Add text before this match
     if (match.index > lastIndex) {
       fragment.appendChild(
         document.createTextNode(text.slice(lastIndex, match.index))
@@ -205,7 +206,6 @@ function replaceFileRefs(textNode: Text): void {
     const fileType = FILE_TYPE_MAP[ext] || "generic";
 
     if (fileType === "org") {
-      // .org files are clickable links
       const link = document.createElement("a");
       link.className = `file-ref file-ref-${fileType}`;
       link.textContent = ref;
@@ -218,7 +218,6 @@ function replaceFileRefs(textNode: Text): void {
       });
       fragment.appendChild(link);
     } else {
-      // Other files get styled spans
       const span = document.createElement("span");
       span.className = `file-ref file-ref-${fileType}`;
       span.textContent = ref;
@@ -246,7 +245,6 @@ function buildToc(): void {
   const nav = document.createElement("nav");
   nav.className = "org-toc";
 
-  // Header with token count
   const header = document.createElement("div");
   header.className = "toc-header";
 
@@ -303,7 +301,224 @@ function formatTokenCount(count: number): string {
   return String(count);
 }
 
-// ─── 6. Scroll Spy ──────────────────────────────────────────────
+// ─── 6. View Toggle (Preview / Doc Map) ─────────────────────────
+
+let docMapLoaded = false;
+
+function buildViewToggle(): void {
+  const article = document.querySelector(".org-preview");
+  if (!article) return;
+
+  const bar = document.createElement("div");
+  bar.className = "view-toggle-bar";
+
+  const previewBtn = document.createElement("button");
+  previewBtn.className = "view-toggle-btn active";
+  previewBtn.textContent = "Preview";
+  previewBtn.setAttribute("data-view", "preview");
+
+  const mapBtn = document.createElement("button");
+  mapBtn.className = "view-toggle-btn";
+  mapBtn.textContent = "Doc Map";
+  mapBtn.setAttribute("data-view", "docmap");
+
+  bar.appendChild(previewBtn);
+  bar.appendChild(mapBtn);
+
+  // Insert before the article
+  article.parentElement?.insertBefore(bar, article);
+
+  // Create the doc map container (hidden initially)
+  const mapContainer = document.createElement("div");
+  mapContainer.className = "doc-map-container";
+  mapContainer.style.display = "none";
+  mapContainer.innerHTML = `<div class="doc-map-loading">Scanning workspace for .org files...</div>`;
+  article.parentElement?.insertBefore(mapContainer, article.nextSibling);
+
+  previewBtn.addEventListener("click", () => {
+    previewBtn.classList.add("active");
+    mapBtn.classList.remove("active");
+    (article as HTMLElement).style.display = "";
+    mapContainer.style.display = "none";
+  });
+
+  mapBtn.addEventListener("click", () => {
+    mapBtn.classList.add("active");
+    previewBtn.classList.remove("active");
+    (article as HTMLElement).style.display = "none";
+    mapContainer.style.display = "";
+
+    if (!docMapLoaded) {
+      docMapLoaded = true;
+      vscode.postMessage({ command: "scanOrgFiles" });
+    }
+  });
+}
+
+// ─── 7. Message Listener (Doc Map Data) ──────────────────────────
+
+interface OrgFileEntry {
+  name: string;
+  path: string;
+  layer: "strategic" | "quickref" | "other";
+  dir: string;
+}
+
+function setupMessageListener(): void {
+  window.addEventListener("message", (event) => {
+    const message = event.data;
+    if (message.command === "orgFileMap") {
+      renderDocMap(message.files as OrgFileEntry[]);
+    }
+  });
+}
+
+function renderDocMap(files: OrgFileEntry[]): void {
+  const container = document.querySelector(".doc-map-container");
+  if (!container) return;
+
+  const article = document.querySelector(".org-preview") as HTMLElement | null;
+  const currentFile = article?.dataset.currentFile || "";
+
+  const strategic = files.filter((f) => f.layer === "strategic");
+  const quickrefs = files.filter((f) => f.layer === "quickref");
+  const other = files.filter((f) => f.layer === "other");
+
+  // Group quickrefs by directory
+  const qrByDir = new Map<string, OrgFileEntry[]>();
+  for (const f of quickrefs) {
+    const group = qrByDir.get(f.dir) || [];
+    group.push(f);
+    qrByDir.set(f.dir, group);
+  }
+
+  // Group other files by directory
+  const otherByDir = new Map<string, OrgFileEntry[]>();
+  for (const f of other) {
+    const key = f.dir || "(root)";
+    const group = otherByDir.get(key) || [];
+    group.push(f);
+    otherByDir.set(key, group);
+  }
+
+  let html = `<div class="doc-map">`;
+  html += `<h2 class="doc-map-title">Documentation Map</h2>`;
+  html += `<p class="doc-map-subtitle">${files.length} .org files in workspace</p>`;
+
+  // Strategic layer
+  if (strategic.length > 0) {
+    html += `<div class="doc-map-section">`;
+    html += `<div class="doc-map-section-header">`;
+    html += `<span class="doc-map-layer-badge layer-strategic">Strategic</span>`;
+    html += `<span class="doc-map-section-desc">Root-level documentation</span>`;
+    html += `</div>`;
+    html += `<div class="doc-map-tree">`;
+    for (const f of strategic) {
+      const active = f.path === currentFile ? " doc-map-active" : "";
+      html += `<a class="doc-map-file doc-map-file-strategic${active}" data-path="${esc(f.path)}" title="${esc(f.path)}">`;
+      html += `<span class="doc-map-icon">&#128196;</span>`;
+      html += `<span class="doc-map-name">${esc(f.name)}</span>`;
+      if (f.dir) html += `<span class="doc-map-dir">${esc(f.dir)}/</span>`;
+      html += `</a>`;
+    }
+    html += `</div></div>`;
+  }
+
+  // Quick reference layer
+  if (qrByDir.size > 0) {
+    html += `<div class="doc-map-section">`;
+    html += `<div class="doc-map-section-header">`;
+    html += `<span class="doc-map-layer-badge layer-quickref">Quick Reference</span>`;
+    html += `<span class="doc-map-section-desc">Module-level detail docs</span>`;
+    html += `</div>`;
+    html += `<div class="doc-map-tree">`;
+
+    for (const [dir, dirFiles] of qrByDir) {
+      html += `<div class="doc-map-dir-group">`;
+      html += `<div class="doc-map-dir-label">`;
+      html += `<span class="doc-map-icon">&#128193;</span>`;
+      html += `<span>${esc(dir)}/</span>`;
+      html += `</div>`;
+
+      for (const f of dirFiles) {
+        const active = f.path === currentFile ? " doc-map-active" : "";
+        html += `<a class="doc-map-file doc-map-file-quickref${active}" data-path="${esc(f.path)}" title="${esc(f.path)}">`;
+        html += `<span class="doc-map-connector"></span>`;
+        html += `<span class="doc-map-icon">&#128196;</span>`;
+        html += `<span class="doc-map-name">${esc(f.name)}</span>`;
+        html += `</a>`;
+      }
+      html += `</div>`;
+    }
+    html += `</div></div>`;
+  }
+
+  // Other files
+  if (other.length > 0) {
+    html += `<div class="doc-map-section">`;
+    html += `<div class="doc-map-section-header">`;
+    html += `<span class="doc-map-layer-badge layer-other">Other</span>`;
+    html += `<span class="doc-map-section-desc">Additional .org files</span>`;
+    html += `</div>`;
+    html += `<div class="doc-map-tree">`;
+
+    for (const [dir, dirFiles] of otherByDir) {
+      if (dir !== "(root)") {
+        html += `<div class="doc-map-dir-group">`;
+        html += `<div class="doc-map-dir-label">`;
+        html += `<span class="doc-map-icon">&#128193;</span>`;
+        html += `<span>${esc(dir)}/</span>`;
+        html += `</div>`;
+      }
+
+      for (const f of dirFiles) {
+        const active = f.path === currentFile ? " doc-map-active" : "";
+        const indent = dir !== "(root)" ? `<span class="doc-map-connector"></span>` : "";
+        html += `<a class="doc-map-file doc-map-file-other${active}" data-path="${esc(f.path)}" title="${esc(f.path)}">`;
+        html += indent;
+        html += `<span class="doc-map-icon">&#128196;</span>`;
+        html += `<span class="doc-map-name">${esc(f.name)}</span>`;
+        if (dir === "(root)" && f.dir) {
+          html += `<span class="doc-map-dir">${esc(f.dir)}/</span>`;
+        }
+        html += `</a>`;
+      }
+
+      if (dir !== "(root)") {
+        html += `</div>`;
+      }
+    }
+    html += `</div></div>`;
+  }
+
+  if (files.length === 0) {
+    html += `<p class="doc-map-empty">No .org files found in the workspace.</p>`;
+  }
+
+  html += `</div>`;
+  container.innerHTML = html;
+
+  // Attach click handlers to file links
+  container.querySelectorAll<HTMLElement>(".doc-map-file").forEach((el) => {
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
+      const path = el.dataset.path;
+      if (path) {
+        vscode.postMessage({ command: "openFile", path });
+      }
+    });
+  });
+}
+
+function esc(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+// ─── 8. Scroll Spy ──────────────────────────────────────────────
 
 function setupScrollSpy(): void {
   const headings = document.querySelectorAll<HTMLElement>(".section-heading");
