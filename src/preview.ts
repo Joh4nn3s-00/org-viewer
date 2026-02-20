@@ -1,10 +1,11 @@
 import * as vscode from "vscode";
-import { orgToHtml } from "./orgParser";
+import { parseToHtml } from "./parsers";
 import { countTokens } from "./tokenCount";
 import { getNonce, getUri } from "./util";
+import { TEMPLATE_ORG } from "./templateContent";
 
-/** Describes an .org file found in the workspace. */
-interface OrgFileEntry {
+/** Describes a doc file (.org or .md) found in the workspace. */
+interface DocFileEntry {
   /** Display name (e.g. "README.org") */
   name: string;
   /** Relative path from workspace root (e.g. "workers/quick_reference.org") */
@@ -53,7 +54,7 @@ export class PreviewManager {
     const column = beside ? vscode.ViewColumn.Beside : vscode.ViewColumn.Active;
 
     const panel = vscode.window.createWebviewPanel(
-      "orgPreview",
+      "docPreview",
       `Preview: ${fileName(document)}`,
       column,
       {
@@ -107,9 +108,19 @@ export class PreviewManager {
     panel.webview.onDidReceiveMessage(async (message) => {
       if (message.command === "openFile" && message.path) {
         await this.openReferencedFile(message.path);
-      } else if (message.command === "scanOrgFiles") {
-        const files = await this.discoverOrgFiles();
-        panel.webview.postMessage({ command: "orgFileMap", files });
+      } else if (message.command === "scanDocFiles") {
+        const files = await this.discoverDocFiles();
+        panel.webview.postMessage({ command: "docFileMap", files });
+      } else if (message.command === "getTemplate") {
+        const html = await parseToHtml(TEMPLATE_ORG, "org");
+        panel.webview.postMessage({
+          command: "templateData",
+          html,
+          raw: TEMPLATE_ORG,
+        });
+      } else if (message.command === "copyToClipboard") {
+        await vscode.env.clipboard.writeText(message.text);
+        panel.webview.postMessage({ command: "clipboardCopied" });
       }
     });
   }
@@ -141,7 +152,7 @@ export class PreviewManager {
     }
   }
 
-  private async discoverOrgFiles(): Promise<OrgFileEntry[]> {
+  private async discoverDocFiles(): Promise<DocFileEntry[]> {
     const results = await vscode.workspace.findFiles(
       "**/*.org",
       "{**/node_modules/**,**/.vscode-test/**,**/dist/**,**/out/**}",
@@ -151,7 +162,7 @@ export class PreviewManager {
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri;
     if (!workspaceRoot) return [];
 
-    const entries: OrgFileEntry[] = [];
+    const entries: DocFileEntry[] = [];
 
     for (const uri of results) {
       const relPath = vscode.workspace.asRelativePath(uri, false);
@@ -159,7 +170,7 @@ export class PreviewManager {
       const name = parts[parts.length - 1];
       const dir = parts.length > 1 ? parts.slice(0, -1).join("/") : "";
 
-      let layer: OrgFileEntry["layer"] = "other";
+      let layer: DocFileEntry["layer"] = "other";
 
       if (name === "quick_reference.org") {
         layer = "quickref";
@@ -190,7 +201,7 @@ export class PreviewManager {
     document: vscode.TextDocument
   ): Promise<void> {
     const rawText = document.getText();
-    const html = await orgToHtml(rawText);
+    const html = await parseToHtml(rawText, document.languageId);
     const tokens = countTokens(rawText);
     const docUri = document.uri.toString();
     const currentFile = vscode.workspace.asRelativePath(document.uri, false);
@@ -223,10 +234,10 @@ function buildWebviewHtml(
     content="default-src 'none'; style-src ${webview.cspSource} 'nonce-${nonce}'; script-src 'nonce-${nonce}';"
   />
   <link rel="stylesheet" href="${cssUri}" />
-  <title>Org Preview</title>
+  <title>Doc Preview</title>
 </head>
 <body>
-  <article class="org-preview"
+  <article class="doc-preview"
     data-token-count="${tokenCount}"
     data-doc-uri="${escapeAttr(docUri)}"
     data-current-file="${escapeAttr(currentFile)}">

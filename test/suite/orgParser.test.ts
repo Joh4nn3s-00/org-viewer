@@ -1,7 +1,7 @@
 import * as assert from "assert";
 
 // Use the esbuild-bundled parser (tests are bundled to out/test/)
-import { orgToHtml } from "../../src/orgParser";
+import { orgToHtml } from "../../src/parsers/orgParser";
 
 suite("Org Parser Test Suite", () => {
   test("should convert heading level 1", async () => {

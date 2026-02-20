@@ -1,24 +1,29 @@
 import * as vscode from "vscode";
 import { PreviewManager } from "./preview";
+import { SUPPORTED_LANGUAGES } from "./parsers";
 
 const UPDATE_DEBOUNCE_MS = 300;
+
+function isSupported(doc: vscode.TextDocument): boolean {
+  return SUPPORTED_LANGUAGES.has(doc.languageId);
+}
 
 export function activate(context: vscode.ExtensionContext): void {
   const previews = new PreviewManager(context.extensionUri);
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("orgViewer.showPreview", () => {
+    vscode.commands.registerCommand("docViewer.showPreview", () => {
       const editor = vscode.window.activeTextEditor;
-      if (editor && editor.document.languageId === "org") {
+      if (editor && isSupported(editor.document)) {
         previews.show(editor.document, false);
       }
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("orgViewer.showPreviewToSide", () => {
+    vscode.commands.registerCommand("docViewer.showPreviewToSide", () => {
       const editor = vscode.window.activeTextEditor;
-      if (editor && editor.document.languageId === "org") {
+      if (editor && isSupported(editor.document)) {
         previews.show(editor.document, true);
       }
     })
@@ -28,7 +33,7 @@ export function activate(context: vscode.ExtensionContext): void {
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((event) => {
-      if (event.document.languageId === "org") {
+      if (isSupported(event.document)) {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => {
           previews.updateIfVisible(event.document);
@@ -37,10 +42,10 @@ export function activate(context: vscode.ExtensionContext): void {
     })
   );
 
-  // Follow active editor to new .org files
+  // Follow active editor to new .org / .md files
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor((editor) => {
-      if (editor && editor.document.languageId === "org") {
+      if (editor && isSupported(editor.document)) {
         previews.followActiveEditor(editor.document);
       }
     })

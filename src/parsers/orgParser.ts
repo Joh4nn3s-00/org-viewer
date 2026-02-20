@@ -83,7 +83,7 @@ export async function orgToHtml(orgText: string): Promise<string> {
     return String(result);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    return `<div class="org-error">
+    return `<div class="parse-error">
       <h3>Org Preview Error</h3>
       <pre>${escapeHtml(message)}</pre>
     </div>`;

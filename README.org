@@ -3,7 +3,7 @@
 
 * Overview
 
-VS Code extension for live-previewing .org (Emacs Org-mode) files. Uses a unified pipeline with a custom AST plugin to handle features that upstream libraries silently drop.
+VS Code extension for live-previewing .org (Emacs Org-mode) and .md (Markdown) files. Uses the unified ecosystem with format-specific parser pipelines and a shared webview rendering layer.
 
 * Project Structure
 
@@ -11,20 +11,33 @@ VS Code extension for live-previewing .org (Emacs Org-mode) files. Uses a unifie
 |------|---------|
 | src/extension.ts | Entry point: activate(), command registration, debounced change handler |
 | src/preview.ts | PreviewManager class: WebviewPanel lifecycle, messaging, token counting |
-| src/orgParser.ts | Unified pipeline: uniorg-parse → orgMetadata → uniorg-rehype → rehype-raw → rehype-stringify |
-| src/orgMetadata.ts | Custom uniorg plugin for metadata, checkboxes, display math, drawers, CLOCK |
-| src/webview.ts | Browser-side: highlight.js, collapsible sections, TOC, sticky headings, file ref detection, doc map |
+| src/parsers/index.ts | Parser dispatch: routes languageId to the correct parser |
+| src/parsers/orgParser.ts | Org pipeline: uniorg-parse → orgMetadata → uniorg-rehype → rehype-raw → rehype-stringify |
+| src/parsers/orgMetadata.ts | Custom uniorg plugin for metadata, checkboxes, display math, drawers, CLOCK |
+| src/parsers/mdParser.ts | Markdown pipeline: remark-parse → remark-gfm → remark-rehype → rehype-raw → rehype-stringify |
+| src/webview.ts | Browser-side: highlight.js, collapsible sections, TOC, sticky headings, file ref detection, doc map, template view |
+| src/templateContent.ts | Embedded documentation philosophy template (.org text constant) |
 | src/tokenCount.ts | Token counting via gpt-tokenizer (cl100k_base encoding) |
 | src/util.ts | getNonce(), getUri() helpers |
 | media/preview.css | Theme-aware styles, highlight.js Dark+ tokens, TOC sidebar, file ref colors |
 | media/preview.js | Bundled webview script (built from src/webview.ts by esbuild) |
 | esbuild.js | Dual-target bundler: extension (Node.js/CJS) + webview (browser/IIFE) + tests |
 | test/ | Mocha test suite bundled through esbuild |
-| demo/ | 8 comprehensive .org test files (~2700 lines) |
+| demo/ | .org test files (~2700 lines) + .md test files for markdown preview |
 
 * Architecture
 
-** Parsing Pipeline (Server-Side — Node.js)
+** Parsing Pipelines (Server-Side — Node.js)
+
+The parser dispatch (src/parsers/index.ts) routes to the correct pipeline based on VS Code languageId:
+
+#+BEGIN_EXAMPLE
+                    ┌─ org:  uniorg-parse → orgMetadata → uniorg-rehype ─┐
+raw text → dispatch ┤                                                      ├→ rehype-raw → rehype-stringify → HTML
+                    └─ md:   remark-parse → remark-gfm → remark-rehype  ─┘
+#+END_EXAMPLE
+
+*** Org Pipeline (src/parsers/orgParser.ts)
 
 #+BEGIN_EXAMPLE
 .org text
@@ -36,14 +49,27 @@ VS Code extension for live-previewing .org (Emacs Org-mode) files. Uses a unifie
   → rehype-stringify        (hast → HTML string)
 #+END_EXAMPLE
 
+*** Markdown Pipeline (src/parsers/mdParser.ts)
+
+#+BEGIN_EXAMPLE
+.md text
+  → remark-parse           (markdown text → mdast)
+  → remark-gfm             (GitHub-Flavored Markdown: tables, task lists, strikethrough)
+  → remark-rehype          (mdast → hast/HTML AST)
+  → rehype-raw             (processes raw HTML in markdown)
+  → rehype-stringify        (hast → HTML string)
+#+END_EXAMPLE
+
 ** Webview Enhancement Pipeline (Client-Side — Browser)
+
+Shared by both formats. Operates on the final HTML output.
 
 #+BEGIN_EXAMPLE
 HTML in webview
   → highlight.js           (syntax highlighting for code blocks)
   → buildSections()        (restructures flat HTML into nested collapsible sections)
   → setStickyOffsets()      (calculates stacked top offsets for sticky headings)
-  → linkifyFileReferences() (detects file paths, adds styling + click handlers for .org files)
+  → linkifyFileReferences() (detects file paths, adds styling + click handlers for .org/.md files)
   → buildToc()             (generates TOC sidebar with token count badge)
   → buildViewToggle()      (Preview / Doc Map toggle bar)
   → setupScrollSpy()       (highlights active heading in TOC as user scrolls)
@@ -69,12 +95,19 @@ Runs at the uniorg AST level (before conversion to HTML). Handles features that 
 | Responsibility | Implementation |
 |---------------|----------------|
 | Panel lifecycle | One panel per document URI, tracks in Map |
-| Follow mode | Reuses "beside" panel when switching .org files |
+| Follow mode | Reuses "beside" panel when switching .org/.md files |
 | Live update | Debounced (300ms) via extension.ts |
+| Parser dispatch | Calls parseToHtml(text, languageId) from parsers/index.ts |
 | Token counting | Counts via gpt-tokenizer, embeds as data attribute |
-| File navigation | Handles webview messages to open .org references in editor |
+| File navigation | Handles webview messages to open .org/.md references in editor |
 | Doc Map discovery | Scans workspace for .org files, classifies by layer, sends to webview |
 | CSP | Nonces for both styles and scripts |
+
+** Template Tab (preview.ts + webview.ts + templateContent.ts)
+
+Toggle to a documentation philosophy template that users can copy into their projects. The template is embedded as a string constant in templateContent.ts (avoids filesystem reads and packaging issues). The extension host parses the .org text through the org pipeline and sends rendered HTML + raw text to the webview. A "Copy to Clipboard" button copies the raw .org source.
+
+The template covers: present-state-only documentation, two-layer file structure (strategic + quick reference), AI-first formatting, agent roles, maintenance workflows, and common violations.
 
 ** Doc Map (preview.ts + webview.ts)
 
@@ -86,14 +119,16 @@ Toggle between the rendered preview and a workspace-wide documentation map. The 
 | Quick Reference | Any file named quick_reference.org | Purple (#c586c0) |
 | Other | Everything else | Teal (#9cdcfe) |
 
+Note: The Doc Map only shows .org files — these are treated as primary documentation files for LLM context. Markdown files are not included in the Doc Map.
+
 Quick reference files are grouped by parent directory. All files are clickable to navigate. The currently viewed file is highlighted.
 
 ** File Reference Detection (webview.ts)
 
 | File Type | Extensions | Color | Clickable |
 |-----------|-----------|-------|-----------|
-| org | .org | Blue (#4fc1ff) | Yes — opens in editor |
-| doc | .md, .mdx, .rst, .txt | Purple (#c586c0) | No |
+| org / md | .org, .md | Blue (#4fc1ff) | Yes — opens in editor |
+| doc | .mdx, .rst, .txt | Purple (#c586c0) | No |
 | code | .py, .js, .ts, .rs, .go, .java, etc. | Yellow (#dcdcaa) | No |
 | config | .json, .yaml, .toml, .xml, .html, .css, etc. | Orange (#ce9178) | No |
 
@@ -103,10 +138,13 @@ Quick reference files are grouped by parent directory. All files are clickable t
 |---------|---------|
 | uniorg-parse | Parses .org text into uniorg AST |
 | uniorg-rehype | Converts uniorg AST to hast (HTML AST) |
+| uniorg | Type definitions for the uniorg AST |
+| remark-parse | Parses markdown text into mdast |
+| remark-gfm | GitHub-Flavored Markdown support (tables, task lists, strikethrough) |
+| remark-rehype | Converts mdast to hast (HTML AST) |
 | rehype-raw | Processes raw HTML nodes in the hast tree |
 | rehype-stringify | Serializes hast to HTML string |
 | unified | Pipeline orchestrator |
-| uniorg | Type definitions for the uniorg AST |
 | highlight.js | Syntax highlighting for code blocks in the webview |
 | gpt-tokenizer | Token counting (cl100k_base encoding) |
 
@@ -114,15 +152,17 @@ Quick reference files are grouped by parent directory. All files are clickable t
 
 | Decision | Rationale |
 |----------|-----------|
+| Dual-format via parser dispatch | Single webview layer shared by both formats; parsers isolated in src/parsers/ |
 | uniorg over orga | Better ecosystem integration (unified/rehype), more complete Org-mode parsing |
+| remark + remark-gfm for markdown | Same unified ecosystem as org pipeline; GFM adds tables, task lists, strikethrough |
 | Custom orgMetadata plugin | Intercepts at AST level before uniorg-rehype; won't break on library updates |
 | useSubSuperscripts: false | Disables sub/superscript parsing at parser level; trust LaTeX for real subscripts |
 | esbuild dual-target | Two bundles: extension (Node.js/CJS) and webview (browser/IIFE); faster than webpack |
 | Client-side DOM restructuring | Sections, sticky headings, TOC built by webview script; keeps parser clean |
 | highlight.js common bundle | ~40 languages instead of 190+; keeps webview bundle lean |
 | Stacked sticky via offsetHeight | Pixel-accurate regardless of font size |
-| Unicode checkbox symbols | Simpler than HTML checkbox elements in webview context |
-| Display math via node type swap | Leverages uniorg-rehype's existing div.math.math-display handler |
+| Doc Map: .org only | .org files are primary LLM documentation; .md files excluded to keep Doc Map focused |
+| Keybindings: .org only | Avoids conflicting with VS Code's built-in markdown preview keybindings |
 
 * Development
 
@@ -139,7 +179,7 @@ npm run watch       # Watch mode for development
 1. Open the project in VS Code
 2. Press F5 (or select "Run Extension" from the Run & Debug panel)
 3. Opens an Extension Development Host with the demo/ folder
-4. Open any .org file → click preview icon or press Cmd+K V
+4. Open any .org or .md file → click preview icon or press Cmd+K V (for .org) / use command palette (for .md)
 
 ** Debug Workflow for Rendering Issues
 
@@ -150,7 +190,7 @@ const fs = require('fs');
 const path = require('path');
 const esbuild = require('esbuild');
 esbuild.buildSync({
-  entryPoints: ['src/orgParser.ts'],
+  entryPoints: ['src/parsers/orgParser.ts'],
   bundle: true,
   outfile: '/tmp/orgparser-test.js',
   format: 'cjs',
@@ -166,7 +206,7 @@ Promise.all(files.map(async f => {
   const html = await orgToHtml(content);
   const outName = f.replace('.org', '.html');
   fs.writeFileSync(path.join(debugDir, outName), html);
-  console.log(html.includes('org-error') ? 'WARN' : 'OK  ', f, '-', html.length, 'chars');
+  console.log(html.includes('parse-error') ? 'WARN' : 'OK  ', f, '-', html.length, 'chars');
 }));
 "
 #+END_EXAMPLE
@@ -181,25 +221,25 @@ vsce publish          # Push to Marketplace (needs Azure PAT)
 
 * Known Remaining Issues
 
-** Checkboxes / Lists
+** Checkboxes / Lists (Org)
 - Checkboxes inside table cells not converted to Unicode symbols (only works in list items)
 - [@N] counter syntax in ordered lists not implemented
 - Letter-based ordered lists (a., b.) render as numeric
 
-** Math / LaTeX
+** Math / LaTeX (Org)
 - \[...\] display math syntax not converted to block display (only $$...$$ works)
 - Multi-line $$...$$ spanning paragraphs may get split into separate fragments
 - Some entities (\LaTeX, \copyright, \degree) rendered as math-inline instead of Unicode
 
-** Links / Images
+** Links / Images (Org)
 - Internal heading links use *Heading format instead of #heading-id anchors
 - Target definitions (<<target>>) and radio targets (<<<target>>>) rendered as literal text
 - Images with descriptions rendered as links instead of <img> with alt text
 
-** Tables
+** Tables (Org)
 - Column alignment specifiers (<l>, <c>, <r>) shown as cell content
 
-** Blocks / Metadata
+** Blocks / Metadata (Org)
 - #+ATTR_HTML attributes sometimes attach to wrong element
 - @@latex:...@@ export snippets visible in HTML output (should be hidden)
 - #+NAME: on source blocks not preserved as HTML id
@@ -210,4 +250,4 @@ vsce publish          # Push to Marketplace (needs Azure PAT)
 - Radio targets don't auto-link subsequent mentions
 
 ---
-/Last Updated/: 2026-02-11
+/Last Updated/: 2026-02-20
