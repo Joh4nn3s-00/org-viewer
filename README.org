@@ -70,7 +70,7 @@ HTML in webview
   → buildSections()        (restructures flat HTML into nested collapsible sections)
   → setStickyOffsets()      (calculates stacked top offsets for sticky headings)
   → linkifyFileReferences() (detects file paths, adds styling + click handlers for .org/.md files)
-  → buildToc()             (generates TOC sidebar with token count badge)
+  → buildToc()             (generates collapsible TOC sidebar with token count badge)
   → buildViewToggle()      (Preview / Doc Map toggle bar)
   → setupScrollSpy()       (highlights active heading in TOC as user scrolls)
   → setupMessageListener() (receives Doc Map data from extension host)
@@ -100,7 +100,7 @@ Runs at the uniorg AST level (before conversion to HTML). Handles features that 
 | Parser dispatch | Calls parseToHtml(text, languageId) from parsers/index.ts |
 | Token counting | Counts via gpt-tokenizer, embeds as data attribute |
 | File navigation | Handles webview messages to open .org/.md references in editor |
-| Doc Map discovery | Scans workspace for .org files, classifies by layer, sends to webview |
+| Doc Map discovery | Scans workspace for .org files, classifies by layer, counts tokens per file, sends to webview |
 | CSP | Nonces for both styles and scripts |
 
 ** Template Tab (preview.ts + webview.ts + templateContent.ts)
@@ -122,6 +122,12 @@ Toggle between the rendered preview and a workspace-wide documentation map. The 
 Note: The Doc Map only shows .org files — these are treated as primary documentation files for LLM context. Markdown files are not included in the Doc Map.
 
 Quick reference files are grouped by parent directory. All files are clickable to navigate. The currently viewed file is highlighted.
+
+Each file shows its token count (cl100k estimate) right-aligned in monospace. Sections display subtotals with a single-line divider, and a grand total appears at the bottom with a double-weight divider (accounting-ledger style). A faint vertical guide line on the right edge of the file tree aligns the numbers. Token counting uses gpt-tokenizer, reading each file via =vscode.workspace.fs.readFile()= in parallel.
+
+** TOC Sidebar (webview.ts)
+
+The Table of Contents sidebar is collapsible. A =«= button in the header collapses the sidebar to a narrow 28px strip, shifting the preview content left with a smooth transition. Click =»= to expand back to the full 180px width. The collapsed state hides the TOC items and token count badge.
 
 ** File Reference Detection (webview.ts)
 
@@ -257,4 +263,4 @@ vsce publish          # Push to Marketplace (needs Azure PAT)
 - Radio targets don't auto-link subsequent mentions
 
 ---
-/Last Updated/: 2026-02-27
+/Last Updated/: 2026-02-28

@@ -30,6 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
   buildViewToggle();
   setupScrollSpy();
   setupMessageListener();
+  setupAnchorLinks();
 });
 
 // ─── 1. Code Syntax Highlighting ─────────────────────────────────
@@ -262,6 +263,19 @@ function buildToc(): void {
     badge.title = `${parseInt(tokenCount, 10).toLocaleString()} tokens (cl100k estimate)`;
     header.appendChild(badge);
   }
+
+  const collapseBtn = document.createElement("span");
+  collapseBtn.className = "toc-collapse-btn";
+  collapseBtn.textContent = "\u00AB"; // «
+  collapseBtn.title = "Collapse sidebar";
+  collapseBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const collapsed = nav.classList.toggle("toc-collapsed");
+    document.body.classList.toggle("toc-collapsed", collapsed);
+    collapseBtn.textContent = collapsed ? "\u00BB" : "\u00AB"; // » or «
+    collapseBtn.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
+  });
+  header.appendChild(collapseBtn);
 
   nav.appendChild(header);
 
@@ -666,4 +680,39 @@ function updateActiveTocItem(headings: NodeListOf<HTMLElement>): void {
       tocItem.scrollIntoView({ block: "nearest" });
     }
   }
+}
+
+// ─── 9. Internal Anchor Links ────────────────────────────────────
+
+function setupAnchorLinks(): void {
+  document.addEventListener("click", (e) => {
+    const link = (e.target as HTMLElement).closest("a");
+    if (!link) return;
+
+    const href = link.getAttribute("href");
+    if (!href || !href.startsWith("#")) return;
+
+    const targetId = href.slice(1);
+    if (!targetId) return;
+
+    const target = document.getElementById(targetId);
+    if (!target) return;
+
+    e.preventDefault();
+
+    // Expand any collapsed ancestor sections so the target is visible
+    let ancestor: Element | null = target.closest(".doc-section");
+    while (ancestor) {
+      const body = ancestor.querySelector(":scope > .section-body");
+      if (body?.classList.contains("collapsed")) {
+        body.classList.remove("collapsed");
+        ancestor.classList.remove("is-collapsed");
+        const toggle = ancestor.querySelector(":scope > .section-heading .section-toggle");
+        if (toggle) toggle.textContent = "\u25BC";
+      }
+      ancestor = ancestor.parentElement?.closest(".doc-section") ?? null;
+    }
+
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
 }

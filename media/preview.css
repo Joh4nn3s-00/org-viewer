@@ -14,6 +14,12 @@ body {
 /* Shift content right when TOC sidebar is present */
 body.has-toc {
   margin-left: 196px;
+  transition: margin-left 0.2s ease;
+}
+
+/* Collapsed TOC — body shifts back */
+body.has-toc.toc-collapsed {
+  margin-left: 36px;
 }
 
 /* ═══════════════════════════════════════
@@ -78,7 +84,9 @@ h6 { font-size: 0.95em; color: #6a9955; }
   opacity: 1;
 }
 
-/* Sticky headings — pin to top on scroll */
+/* Sticky headings — pin to top on scroll.
+   Higher-level headings get higher z-index so lower-level
+   headings slide *under* them when scrolling. */
 .section-heading {
   position: sticky;
   top: 0;
@@ -88,6 +96,12 @@ h6 { font-size: 0.95em; color: #6a9955; }
   padding-top: 2px;
   padding-bottom: 2px;
 }
+.org-level-1 > .section-heading { z-index: 60; }
+.org-level-2 > .section-heading { z-index: 50; }
+.org-level-3 > .section-heading { z-index: 40; }
+.org-level-4 > .section-heading { z-index: 30; }
+.org-level-5 > .section-heading { z-index: 20; }
+.org-level-6 > .section-heading { z-index: 10; }
 
 /* Collapsed state: dim the heading slightly */
 .is-collapsed > .section-heading {
@@ -541,6 +555,27 @@ del {
   padding: 8px 0;
   font-size: 0.8em;
   z-index: 100;
+  transition: width 0.2s ease;
+}
+
+/* Collapsed TOC sidebar */
+.doc-toc.toc-collapsed {
+  width: 28px;
+  overflow: hidden;
+}
+
+.doc-toc.toc-collapsed .toc-items,
+.doc-toc.toc-collapsed .toc-token-count {
+  display: none;
+}
+
+.doc-toc.toc-collapsed .toc-header {
+  padding: 8px 4px 10px;
+  justify-content: center;
+}
+
+.doc-toc.toc-collapsed .toc-header span:first-child {
+  display: none;
 }
 
 .toc-header {
@@ -568,6 +603,23 @@ del {
   text-transform: none;
   letter-spacing: 0;
   cursor: help;
+}
+
+/* Collapse/expand button */
+.toc-collapse-btn {
+  cursor: pointer;
+  font-size: 1.1em;
+  font-weight: 400;
+  color: var(--vscode-descriptionForeground, #888);
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+
+.toc-collapse-btn:hover {
+  opacity: 1;
 }
 
 .toc-items {

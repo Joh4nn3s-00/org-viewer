@@ -2,7 +2,7 @@
   "name": "org-viewer",
   "displayName": "Org Viewer",
   "description": "Enhanced live preview for Org-mode (.org) and Markdown (.md) files — collapsible sections, TOC sidebar, syntax highlighting, token count, and Doc Map.",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "publisher": "johannes-exe-or-something",
   "license": "MIT",
   "repository": {
@@ -114,6 +114,7 @@
     "gpt-tokenizer": "^3.4.0",
     "highlight.js": "^11.11.1",
     "rehype-raw": "^7.0.0",
+    "rehype-slug": "^6.0.0",
     "rehype-stringify": "^10.0.1",
     "remark-gfm": "^4.0.1",
     "remark-parse": "^11.0.0",

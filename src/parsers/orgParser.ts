@@ -3,6 +3,7 @@ import uniorgParse from "uniorg-parse";
 import uniorgMetadata from "./orgMetadata";
 import uniorg2rehype from "uniorg-rehype";
 import rehypeRaw from "rehype-raw";
+import rehypeSlug from "rehype-slug";
 import rehypeStringify from "rehype-stringify";
 import type { Root, RootContent } from "hast";
 
@@ -72,6 +73,7 @@ const processor = unified()
   .use(uniorg2rehype)
   .use(rehypeRaw, { passThrough: passthroughNodeTypes })
   .use(rehypeCleanUnknownNodes)
+  .use(rehypeSlug)
   .use(rehypeStringify, { allowDangerousHtml: true });
 
 /**
