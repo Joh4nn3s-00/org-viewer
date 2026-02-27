@@ -14,6 +14,8 @@ interface DocFileEntry {
   layer: "strategic" | "quickref" | "other";
   /** Parent directory name (e.g. "workers") or "" for root */
   dir: string;
+  /** Token count (cl100k estimate) */
+  tokens: number;
 }
 
 /**
@@ -162,28 +164,37 @@ export class PreviewManager {
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri;
     if (!workspaceRoot) return [];
 
-    const entries: DocFileEntry[] = [];
+    const decoder = new TextDecoder("utf-8");
 
-    for (const uri of results) {
-      const relPath = vscode.workspace.asRelativePath(uri, false);
-      const parts = relPath.split("/");
-      const name = parts[parts.length - 1];
-      const dir = parts.length > 1 ? parts.slice(0, -1).join("/") : "";
+    const entries: DocFileEntry[] = await Promise.all(
+      results.map(async (uri) => {
+        const relPath = vscode.workspace.asRelativePath(uri, false);
+        const parts = relPath.split("/");
+        const name = parts[parts.length - 1];
+        const dir = parts.length > 1 ? parts.slice(0, -1).join("/") : "";
 
-      let layer: DocFileEntry["layer"] = "other";
+        let layer: DocFileEntry["layer"] = "other";
 
-      if (name === "quick_reference.org") {
-        layer = "quickref";
-      } else if (
-        parts.length === 1 ||
-        (parts.length === 2 && /^[A-Z][A-Z_]*\.org$/.test(name))
-      ) {
-        // Root-level file or ALL_CAPS file one level deep
-        layer = "strategic";
-      }
+        if (name === "quick_reference.org") {
+          layer = "quickref";
+        } else if (
+          parts.length === 1 ||
+          (parts.length === 2 && /^[A-Z][A-Z_]*\.org$/.test(name))
+        ) {
+          layer = "strategic";
+        }
 
-      entries.push({ name, path: relPath, layer, dir });
-    }
+        let tokens = 0;
+        try {
+          const raw = await vscode.workspace.fs.readFile(uri);
+          tokens = countTokens(decoder.decode(raw));
+        } catch {
+          // File unreadable — leave tokens as 0
+        }
+
+        return { name, path: relPath, layer, dir, tokens };
+      })
+    );
 
     // Sort: strategic first, then quickrefs by dir, then other
     entries.sort((a, b) => {

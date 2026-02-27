@@ -2,7 +2,7 @@
   "name": "org-viewer",
   "displayName": "Org Viewer",
   "description": "Enhanced live preview for Org-mode (.org) and Markdown (.md) files — collapsible sections, TOC sidebar, syntax highlighting, token count, and Doc Map.",
-  "version": "0.3.1",
+  "version": "0.3.3",
   "publisher": "johannes-exe-or-something",
   "license": "MIT",
   "repository": {

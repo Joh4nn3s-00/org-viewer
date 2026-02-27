@@ -394,6 +394,7 @@ interface DocFileEntry {
   path: string;
   layer: "strategic" | "quickref" | "other";
   dir: string;
+  tokens: number;
 }
 
 function setupMessageListener(): void {
@@ -449,6 +450,11 @@ function renderDocMap(files: DocFileEntry[]): void {
   const quickrefs = files.filter((f) => f.layer === "quickref");
   const other = files.filter((f) => f.layer === "other");
 
+  const strategicTotal = strategic.reduce((s, f) => s + f.tokens, 0);
+  const quickrefTotal = quickrefs.reduce((s, f) => s + f.tokens, 0);
+  const otherTotal = other.reduce((s, f) => s + f.tokens, 0);
+  const grandTotal = files.reduce((s, f) => s + f.tokens, 0);
+
   // Group quickrefs by directory
   const qrByDir = new Map<string, DocFileEntry[]>();
   for (const f of quickrefs) {
@@ -468,7 +474,11 @@ function renderDocMap(files: DocFileEntry[]): void {
 
   let html = `<div class="doc-map">`;
   html += `<h2 class="doc-map-title">Documentation Map</h2>`;
-  html += `<p class="doc-map-subtitle">${files.length} .org files in workspace</p>`;
+  html += `<p class="doc-map-subtitle">${files.length} .org files in workspace &middot; ${formatTokenCount(grandTotal)} tokens</p>`;
+
+  // Helper: render token count span for a file
+  const tokenSpan = (t: number) =>
+    `<span class="doc-map-tokens" title="${t.toLocaleString()} tokens">${formatTokenCount(t)}</span>`;
 
   // Strategic layer
   if (strategic.length > 0) {
@@ -484,9 +494,15 @@ function renderDocMap(files: DocFileEntry[]): void {
       html += `<span class="doc-map-icon">&#128196;</span>`;
       html += `<span class="doc-map-name">${esc(f.name)}</span>`;
       if (f.dir) html += `<span class="doc-map-dir">${esc(f.dir)}/</span>`;
+      html += tokenSpan(f.tokens);
       html += `</a>`;
     }
-    html += `</div></div>`;
+    html += `</div>`;
+    html += `<div class="doc-map-subtotal">`;
+    html += `<span class="doc-map-subtotal-label">Strategic subtotal</span>`;
+    html += `<span class="doc-map-subtotal-value">${formatTokenCount(strategicTotal)}</span>`;
+    html += `</div>`;
+    html += `</div>`;
   }
 
   // Quick reference layer
@@ -511,11 +527,17 @@ function renderDocMap(files: DocFileEntry[]): void {
         html += `<span class="doc-map-connector"></span>`;
         html += `<span class="doc-map-icon">&#128196;</span>`;
         html += `<span class="doc-map-name">${esc(f.name)}</span>`;
+        html += tokenSpan(f.tokens);
         html += `</a>`;
       }
       html += `</div>`;
     }
-    html += `</div></div>`;
+    html += `</div>`;
+    html += `<div class="doc-map-subtotal">`;
+    html += `<span class="doc-map-subtotal-label">Quick Ref subtotal</span>`;
+    html += `<span class="doc-map-subtotal-value">${formatTokenCount(quickrefTotal)}</span>`;
+    html += `</div>`;
+    html += `</div>`;
   }
 
   // Other files
@@ -546,6 +568,7 @@ function renderDocMap(files: DocFileEntry[]): void {
         if (dir === "(root)" && f.dir) {
           html += `<span class="doc-map-dir">${esc(f.dir)}/</span>`;
         }
+        html += tokenSpan(f.tokens);
         html += `</a>`;
       }
 
@@ -553,11 +576,24 @@ function renderDocMap(files: DocFileEntry[]): void {
         html += `</div>`;
       }
     }
-    html += `</div></div>`;
+    html += `</div>`;
+    html += `<div class="doc-map-subtotal">`;
+    html += `<span class="doc-map-subtotal-label">Other subtotal</span>`;
+    html += `<span class="doc-map-subtotal-value">${formatTokenCount(otherTotal)}</span>`;
+    html += `</div>`;
+    html += `</div>`;
   }
 
   if (files.length === 0) {
     html += `<p class="doc-map-empty">No .org files found in the workspace.</p>`;
+  }
+
+  // Grand total
+  if (files.length > 0) {
+    html += `<div class="doc-map-grand-total">`;
+    html += `<span class="doc-map-grand-total-label">Total</span>`;
+    html += `<span class="doc-map-grand-total-value">${formatTokenCount(grandTotal)}</span>`;
+    html += `</div>`;
   }
 
   html += `</div>`;

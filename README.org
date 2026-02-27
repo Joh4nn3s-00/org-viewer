@@ -245,9 +245,16 @@ vsce publish          # Push to Marketplace (needs Azure PAT)
 - #+NAME: on source blocks not preserved as HTML id
 - -n line numbers flag on source blocks ignored
 
+** Line Spacing / Code Blocks
+- Code block and example block line-height set to 1.2 in preview.css (pre, .example)
+- ASCII art diagrams need low line-height (~1.0–1.2) for box-drawing characters to connect vertically
+- VS Code webviews inject default styles that can override extension CSS; the rule =.doc-preview pre, .doc-preview pre code { line-height: 1.2 }= uses higher specificity to win
+- If diagrams still show gaps, lower the value toward 1.0; if regular code feels too cramped, raise toward 1.3
+- Section indent controlled by =.section-body= padding-left (0.75rem) + margin-left (0.2rem) in preview.css
+
 ** Lower Priority
 - Footnotes with complex inline content partially render
 - Radio targets don't auto-link subsequent mentions
 
 ---
-/Last Updated/: 2026-02-20
+/Last Updated/: 2026-02-27
